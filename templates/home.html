@@ -1,0 +1,77 @@
+<!-- templates/home.html -->
+{% extends "base.html" %}
+{% block title %}首页 - 教学平台{% endblock %}
+{% block content %}
+<div class="home-card">
+    <!-- 头像 -->
+    <img
+        src="{% if user.avatar %}{{ user.avatar }}{% else %}/static/icons/default.png{% endif %}"
+        alt="头像"
+        class="avatar"
+    >
+
+    <h2>欢迎来到教学平台, {{ username }}!</h2>
+
+    <div class="user-details">
+        <p><strong>用户名：</strong>{{ username }}</p>
+        <p><strong>昵称：</strong>{{ nickname }}</p>
+    </div>
+
+    <!-- ✅ 改为无交互的静态按钮 -->
+    <div class="static-button">
+        脑电实验
+    </div>
+</div>
+
+<style>
+.home-card {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #eee;
+    margin-bottom: 20px;
+}
+
+.home-card h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+.user-details {
+    margin: 15px 0;
+    text-align: left;
+    padding: 0 20px;
+}
+
+.user-details p {
+    margin: 8px 0;
+    color: #555;
+    font-size: 14px;
+}
+
+/* ✅ 静态按钮：无链接、不可点击 */
+.static-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 24px;
+    background-color: #e9ecef;
+    color: #6c757d;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: default;
+    user-select: none;
+}
+</style>
+{% endblock %}

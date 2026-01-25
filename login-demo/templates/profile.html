@@ -1,0 +1,45 @@
+<!-- Teaching_platform/login-demo/templates/profile.html -->
+{% extends "base.html" %}
+
+{% block title %}个人中心 - 教学平台{% endblock %}
+{% block page_class %}page-profile{% endblock %}
+
+{% block content %}
+<div class="card-container">
+    <h2 class="text-center">个人中心</h2>
+
+    <img src="{{ avatar }}" alt="头像预览" class="avatar-preview" id="avatar-preview">
+
+    <form action="/update-profile" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label class="form-label">头像 URL:</label>
+            <input class="form-input" type="text" name="avatar_url" placeholder="https://example.com/avatar.jpg">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">或上传新头像:</label>
+            <input type="file" name="avatar_upload" accept="image/*" onchange="previewAvatar(event)">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">昵称:</label>
+            <input class="form-input" type="text" name="nickname" value="{{ nickname }}" required>
+        </div>
+
+        <button class="btn btn-primary" type="submit">更新信息</button>
+    </form>
+</div>
+
+<script>
+function previewAvatar(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('avatar-preview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+{% endblock %}

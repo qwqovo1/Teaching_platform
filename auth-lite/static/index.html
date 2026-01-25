@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>独立登录模块</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="hero">
+      <div class="hero-content">
+        <div class="title">神经语言学实验室——网上教学平台</div>
+        <div class="subtitle">
+          独立登录模块示例：点击下方“登录”按钮弹出登录窗口，支持账号密码注册与登录，密码长度不足六位将提示重新输入。
+        </div>
+        <div class="actions">
+          <button id="open-login" class="btn">登录</button>
+          <button id="open-login-secondary" class="btn btn-secondary">体验一下</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">账号登录</div>
+          <button class="close-btn" id="close-modal" aria-label="关闭">×</button>
+        </div>
+        <form class="form" id="login-form">
+          <div class="input-group">
+            <label class="label" for="username">账号</label>
+            <input class="input" id="username" name="username" type="text" placeholder="请输入账号" required />
+          </div>
+          <div class="input-group">
+            <label class="label" for="password">密码</label>
+            <input
+              class="input"
+              id="password"
+              name="password"
+              type="password"
+              minlength="6"
+              placeholder="密码不少于6位"
+              required
+            />
+          </div>
+          <div class="form-actions">
+            <div class="actions" style="gap: 10px;">
+              <button type="submit" class="btn">登录</button>
+              <button type="button" id="register-btn" class="btn">注册</button>
+            </div>
+            <button type="button" id="forgot-btn" class="btn btn-secondary btn-small">忘记密码</button>
+          </div>
+          <div id="status" class="status hidden"></div>
+        </form>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

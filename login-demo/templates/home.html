@@ -1,0 +1,20 @@
+<!-- Teaching_platform/login-demo/templates/home.html -->
+{% extends "base.html" %}
+
+{% block title %}首页 - 教学平台{% endblock %}
+{% block page_class %}page-home{% endblock %}
+
+{% block content %}
+<div class="header">神经语言学实验室</div>
+
+<div class="user-info">
+    <img src="{{ avatar }}" alt="头像" class="avatar">
+    <p>欢迎来到教学平台, {{ nickname }}!</p>
+    <p>用户名：{{ username }}</p>
+    <p>昵称：{{ nickname }}</p>
+</div>
+
+<div class="neuro-btn-container">
+    <button class="neuro-btn" onclick="alert('脑电实验功能待开发')">脑电实验</button>
+</div>
+{% endblock %}

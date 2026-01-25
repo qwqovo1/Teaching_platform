@@ -1,0 +1,159 @@
+/* 基础重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* 顶部标题 */
+.top-header {
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.top-header h1 {
+    font-size: 2em;
+    color: #333;
+}
+
+/* 主要内容区域 */
+.main-content {
+    padding: 20px;
+    min-height: calc(100vh - 100px); /* 减去头部和底部高度 */
+    background-color: #fff;
+}
+
+.content-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    flex-direction: column;
+    text-align: center;
+}
+
+.centered-content {
+    max-width: 600px;
+    padding: 20px;
+}
+
+.avatar-center {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.video-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1em;
+    margin: 20px 0;
+    transition: background-color 0.3s;
+}
+.video-btn:hover {
+    background-color: #0056b3;
+}
+
+.video-container {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 600px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* 脑电实验按钮样式 */
+.neuro-button {
+    margin-top: 20px; /* 在头像和昵称下方添加一点间距 */
+    padding: 15px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #fff;
+    border: none;
+    border-radius: 30px; /* 圆角 */
+    cursor: pointer;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #dda0dd, #ff6b6b); /* 渐变背景 */
+    background-size: 300% 300%; /* 背景尺寸放大，用于动画效果 */
+    animation: gradientShift 3s ease infinite; /* 应用动画 */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* 阴影 */
+    transition: transform 0.2s, box-shadow 0.2s; /* 悬停过渡效果 */
+}
+
+.neuro-button:hover {
+    transform: scale(1.05); /* 悬停时放大 */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3); /* 悬停时加深阴影 */
+}
+
+/* 动画定义 */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+/* 底部导航栏 */
+.bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    background-color: #fff;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    text-decoration: none;
+    color: #666;
+    transition: color 0.3s;
+}
+
+.nav-item.active {
+    color: #007bff;
+}
+
+.nav-icon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 5px;
+}
+
+/* 状态类 */
+.dashboard, .video-content, .profile-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+    text-align: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 10px;
+    }
+    .centered-content {
+        padding: 10px;
+    }
+}

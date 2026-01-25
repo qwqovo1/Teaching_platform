@@ -1,0 +1,71 @@
+<!-- login-demo/templates/index.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教学平台 - 欢迎</title>
+    <link rel="stylesheet" href="/static/css/global.css">
+    <style>
+        .welcome-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .welcome-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        .welcome-card h1 {
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+        .welcome-card p {
+            font-size: 1.1em;
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .footer-note {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #999;
+        }
+    </style>
+</head>
+<body class="welcome-page">
+    <div class="welcome-card">
+        <h1>神经语言学实验室</h1>
+        <p>
+            欢迎使用教学平台。本平台支持脑电实验任务管理、学习视频访问与个人资料维护，
+            为科研与教学提供一体化支持。
+        </p>
+
+        <div class="btn-group">
+            <a href="/login-page" class="btn btn-primary">用户登录</a>
+            <a href="/register-page" class="btn btn-secondary">立即注册</a>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        © 2026 神经语言学实验室 · 教学平台
+    </div>
+</body>
+</html>

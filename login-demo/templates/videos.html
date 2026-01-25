@@ -1,0 +1,40 @@
+<!-- Teaching_platform/login-demo/templates/videos.html -->
+{% extends "base.html" %}
+
+{% block title %}视频 - 教学平台{% endblock %}
+{% block page_class %}page-videos{% endblock %}
+
+{% block content %}
+<div class="card-container">
+    <h2 class="text-center">教学视频</h2>
+
+    <div class="video-controls text-center">
+        <button id="play-btn" class="btn btn-primary">脑电实验视频</button>
+    </div>
+
+    <div id="video-container" style="display: none; margin-top: 20px;">
+        <video
+            id="experiment-video"
+            width="100%"
+            controls
+            preload="metadata"
+        >
+            <source src="/static/videos/1.mp4" type="video/mp4">
+            您的浏览器不支持视频播放。
+        </video>
+    </div>
+</div>
+
+<script>
+document.getElementById('play-btn').addEventListener('click', function() {
+    const container = document.getElementById('video-container');
+    const video = document.getElementById('experiment-video');
+
+    if (container.style.display === 'none') {
+        container.style.display = 'block';
+        video.load();
+        video.play().catch(e => console.log("Autoplay prevented:", e));
+    }
+});
+</script>
+{% endblock %}

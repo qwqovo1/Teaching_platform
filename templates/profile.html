@@ -1,0 +1,60 @@
+<!-- templates/profile.html -->
+{% extends "base.html" %}
+{% block title %}个人中心 - 教学平台{% endblock %}
+{% block page_class %}page-profile{% endblock %}
+{% block content %}
+<div class="profile-container">
+    <!-- 头像预览 -->
+    <img src="{% if avatar %}{{ avatar }}{% else %}/static/icons/default.png{% endif %}" alt="头像" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 20px auto 10px; display: block;">
+
+    <form action="/update-profile" method="post" enctype="multipart/form-data">
+        <label for="avatar-upload">上传新头像:</label>
+        <input type="file" id="avatar-upload" name="avatar_upload" accept="image/*"><br><br>
+
+        <label for="nickname">昵称:</label>
+        <input type="text" id="nickname" name="nickname" value="{{ nickname }}" required><br><br>
+
+        <button type="submit">更新信息</button>
+    </form>
+
+    <!-- 新增：退出登录按钮 -->
+    <div style="margin-top: 20px; text-align: center;">
+        <a href="/logout" style="color: #dc3545; text-decoration: none; font-size: 14px;">退出登录</a>
+    </div>
+</div>
+
+<style>
+.profile-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="file"], input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+</style>
+{% endblock %}

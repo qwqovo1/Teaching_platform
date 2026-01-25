@@ -1,0 +1,31 @@
+<!-- Teaching_platform/login-demo/templates/base.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="webtoken" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}教学平台{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/global.css">
+</head>
+<body class="{% block page_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+
+    <!-- 全局底部导航栏（所有页面显示） -->
+    <nav class="global-nav-bar">
+        <a href="/home" class="nav-item {% if '/home' in request.url.path %}active{% endif %}">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">首页</span>
+        </a>
+        <a href="/videos" class="nav-item {% if '/videos' in request.url.path %}active{% endif %}">
+            <span class="nav-icon">🎬</span>
+            <span class="nav-text">视频</span>
+        </a>
+        <a href="/profile" class="nav-item {% if '/profile' in request.url.path %}active{% endif %}">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">我的</span>
+        </a>
+    </nav>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
