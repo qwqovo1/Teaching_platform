@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    /* 温馨快乐的流动背景 */
+    body {
+        background: linear-gradient(-45deg, #fff9ad, #fbc2eb, #a18cd1, #fad0c4);
+        background-size: 400% 400%;
+        animation: gradientFlow 12s ease infinite;
+        overflow-x: hidden;
+    }
+
+    @keyframes gradientFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .floating-deco {
+        position: fixed;
+        pointer-events: none;
+        z-index: -1;
+        font-size: 45px;
+        animation: floatAround 5s ease-in-out infinite;
+        opacity: 0.7;
+    }
+
+    @keyframes floatAround {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-20px) scale(1.1); }
+    }
+
+    .test-container {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 35px;
+        padding: 40px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+        border: 3px solid #fff;
+        max-width: 750px;
+        margin: 50px auto;
+        text-align: center;
+    }
+
+    .question-box {
+        background: #fff;
+        padding: 25px;
+        border-radius: 20px;
+        margin-bottom: 25px;
+        text-align: left;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        transition: 0.3s;
+    }
+
+    .question-box:hover {
+        transform: scale(1.02);
+    }
+
+    .happy-btn {
+        background: linear-gradient(135deg, #fab1a0, #ff7675);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 5px 15px rgba(255, 118, 117, 0.3);
+    }
+
+    .happy-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(255, 118, 117, 0.5);
+    }
+
+    .opt-btn {
+        display: block; width: 100%; text-align: left;
+        padding: 15px; margin: 10px 0; border: 2px solid #f1f2f6;
+        border-radius: 15px; background: #fff; cursor: pointer; transition: 0.2s;
+    }
+    .opt-btn:hover:not(:disabled) { background: #fdf9ff; border-color: #a18cd1; }
+</style>
+
+<!-- 动态点缀物 -->
+<div class="floating-deco" style="top: 10%; left: 10%;">☀️</div>
+<div class="floating-deco" style="bottom: 15%; right: 10%; animation-delay: 1s;">🌈</div>
+<div class="floating-deco" style="top: 50%; left: 5%; animation-delay: 2s;">😊</div>
+<div class="floating-deco" style="top: 30%; right: 12%; animation-delay: 3s;">☀️</div>
+
+<div class="test-container">
+    <h2 style="color: #6c5ce7; margin-bottom: 30px;">🧠 脑电实验自测题</h2>
+
+    {% if role == 'admin' %}
+    <div style="background: #f8f9fa; border: 2px dashed #6c5ce7; padding: 20px; border-radius: 20px; margin-bottom: 30px;">
+        <h4 style="color: #6c5ce7;">管理员：添加新题目</h4>
+        <form action="/add-question" method="post">
+            <input type="text" name="content" class="form-input" placeholder="题干描述" required>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="text" name="a" class="form-input" placeholder="选项A">
+                <input type="text" name="b" class="form-input" placeholder="选项B">
+                <input type="text" name="c" class="form-input" placeholder="选项C">
+                <input type="text" name="d" class="form-input" placeholder="选项D">
+            </div>
+            <select name="ans" class="form-input">
+                <option value="A">正确答案：A</option>
+                <option value="B">正确答案：B</option>
+                <option value="C">正确答案：C</option>
+                <option value="D">正确答案：D</option>
+            </select>
+            <button type="submit" class="happy-btn" style="width: 100%;">确认发布 🍭</button>
+        </form>
+    </div>
+    {% endif %}
+
+    {% for q in questions %}
+    <div class="question-box">
+        <p><strong>{{ loop.index }}. {{ q.content }}</strong></p>
+        {% for opt in ['A','B','C','D'] %}
+        <button onclick="sub('{{q.id}}','{{opt}}')" id="q{{q.id}}{{opt}}" class="opt-btn" {% if q.id in answered %}disabled{% endif %}>
+            {{opt}}. {{ q['option_' + opt.lower()] }}
+        </button>
+        {% endfor %}
+        <div id="res{{q.id}}" style="margin-top:10px; font-weight:bold;">
+            {% if q.id in answered %}
+            <span style="color:{{ '#2ed573' if answered[q.id].is_correct else '#ff4757' }}">已记录作答</span>
+            {% endif %}
+        </div>
+        {% if role == 'admin' %}
+        <form action="/delete-question" method="post" style="margin-top:10px; text-align:right;">
+            <input type="hidden" name="qid" value="{{q.id}}">
+            <button type="submit" style="color:#ff7675; background:none; border:none; cursor:pointer; font-size:13px;">[删除此题]</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <form action="/finish-test" method="post" style="margin-top: 40px;">
+        <button type="submit" class="happy-btn" style="background: #2ed573; box-shadow: 0 5px 15px rgba(46, 213, 115, 0.3);">
+            交卷并保存成绩单 📝
+        </button>
+    </form>
+</div>
+
+<script>
+async function sub(qid, opt) {
+    const fd = new FormData(); fd.append('qid', qid); fd.append('opt', opt);
+    const res = await fetch('/submit-answer', {method:'POST', body:fd});
+    const data = await res.json();
+    document.getElementById('res'+qid).innerHTML = `<span style="color:${data.is_correct?'#2ed573':'#ff4757'}">${data.is_correct?'答对啦！😊':'答错啦，下次加油哦！'}</span>`;
+    document.querySelectorAll(`[id^="q${qid}"]`).forEach(b => b.disabled = true);
+}
+</script>
+{% endblock %}

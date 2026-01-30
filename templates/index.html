@@ -1,24 +1,24 @@
 {% extends "base.html" %}
+{% block page_bg %}bg-index{% endblock %}
+
+{% block decorations %}
+    <div class="deco-item" style="top: 15%; left: 10%;">⭐</div>
+    <div class="deco-item" style="top: 25%; right: 15%;">💖</div>
+    <div class="deco-item" style="bottom: 20%; left: 20%;">🌸</div>
+    <div class="deco-item" style="top: 60%; right: 10%;">✨</div>
+    <div class="deco-item" style="bottom: 10%; right: 25%;">🌷</div>
+{% endblock %}
+
 {% block content %}
-<div class="card-container" style="max-width: 550px;">
-    <h1 style="color: #2c3e50; font-size: 26px; letter-spacing: 2px;">深圳大学</h1>
-    <h2 style="color: #764ba2; margin-bottom: 25px;">神经语言学实验室</h2>
-
-    <div style="text-align: left; background: rgba(255,255,255,0.6); padding: 25px; border-radius: 20px; margin-bottom: 30px; font-size: 14px; color: #555; line-height: 1.8; border: 1px dashed #764ba2;">
-        <p><strong>实验室简介：</strong><br>
-        欢迎来到我们的学术交流平台。本实验室专注于人类大脑处理语言的奥秘。平台现已开放脑电实验（EEG）等教学资源，旨在为研究人员和学生提供直观的学习体验。</p>
+<div class="card-container">
+    <h1 style="color: #2c3e50;">深圳大学</h1>
+    <h2 style="color: #764ba2;">神经语言学实验室平台</h2>
+    <div style="text-align: left; background: rgba(255,255,255,0.5); padding: 20px; border-radius: 20px; margin: 20px 0; font-size: 14px; line-height: 1.6;">
+        欢迎来到实验室教学资源共享平台。在这里您可以学习脑电实验知识，观看教学视频并参与在线测试。
     </div>
-
-    <!-- 完善后的登录按钮：增加了固定宽度和行高，确保文字不挤压 -->
-    <div style="display: flex; justify-content: center; width: 100%;">
-        <a href="/login-page" class="btn btn-primary" style="width: 260px; text-decoration: none; display: flex; align-items: center; justify-content: center; font-size: 18px;">
-            立即登录
-        </a>
-    </div>
-
-    <p style="margin-top: 25px;">
-        <span style="color: #666;">还没有账号？</span>
-        <a href="/register-page" style="color: #764ba2; font-weight: bold; text-decoration: none;">[注册新成员]</a>
+    <a href="/login-page" class="btn btn-primary" style="width: 200px;">立即登录</a>
+    <p style="margin-top: 20px;">
+        还没有账号？<a href="/register-page" style="color: #764ba2; text-decoration: none; font-weight: bold;">[点击注册]</a>
     </p>
 </div>
 {% endblock %}

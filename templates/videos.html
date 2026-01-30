@@ -1,29 +1,91 @@
 {% extends "base.html" %}
-{% block title %}教学视频列表 - 教学平台{% endblock %}
 {% block content %}
-<div class="video-container" style="max-width: 800px; margin: 20px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-    <h1>教学视频列表</h1>
+<style>
+    /* 舒缓流动的炫彩背景 */
+    body {
+        background: linear-gradient(-45deg, #FFDEE9, #B5FFFC, #fbc2eb, #a6c1ee);
+        background-size: 400% 400%;
+        animation: gradientFlow 15s ease infinite;
+        overflow-x: hidden;
+    }
 
-    <div class="nav-links" style="margin-bottom: 20px; text-align: center;">
-        <a href="/video-catalog" class="link">返回分类目录</a> |
-        <a href="/upload-video-page" class="link">上传新视频</a>
+    @keyframes gradientFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* 漂浮装饰物动画 */
+    .floating-deco {
+        position: fixed;
+        pointer-events: none;
+        z-index: -1;
+        font-size: 40px;
+        animation: floatAround 6s ease-in-out infinite;
+        opacity: 0.6;
+    }
+
+    @keyframes floatAround {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-30px) rotate(15deg); }
+    }
+
+    .video-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 30px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        margin-bottom: 40px;
+        border: 2px solid #fff;
+    }
+
+    .happy-title {
+        color: #6a82fb;
+        text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+</style>
+
+<!-- 动态点缀物 -->
+<div class="floating-deco" style="top: 15%; left: 5%;">☀️</div>
+<div class="floating-deco" style="top: 40%; right: 8%; animation-delay: 1s;">🌈</div>
+<div class="floating-deco" style="bottom: 20%; left: 10%; animation-delay: 2s;">😊</div>
+<div class="floating-deco" style="top: 70%; right: 15%; animation-delay: 3s;">😊</div>
+<div class="floating-deco" style="top: 10%; right: 30%; animation-delay: 4s;">🌈</div>
+
+<div class="container" style="max-width: 900px; margin: 0 auto; text-align: center; padding-top: 50px;">
+    <h1 class="happy-title">✨ 教学视频课室 ✨</h1>
+
+    {% if role == 'admin' %}
+    <div class="video-card" style="border: 2px dashed #6a82fb;">
+        <h4 style="color: #764ba2;">发布新课程 (管理员免密)</h4>
+        <form action="/upload-video" method="post" enctype="multipart/form-data">
+            <input type="text" name="title" class="form-input" placeholder="视频标题" required style="margin-bottom:15px;">
+            <input type="file" name="video_file" accept="video/*" style="margin-bottom:15px; display:block; width:100%;">
+            <button type="submit" class="btn btn-primary" style="background: #6a82fb; border:none; width: 200px;">点击上传 🚀</button>
+        </form>
     </div>
+    {% endif %}
 
     {% for video in videos %}
-    <div class="video-item" style="margin-bottom: 30px; padding: 15px; border: 1px solid #eee; border-radius: 8px;">
-        <h3>{{ video.title }}</h3>
-        <p style="font-size: 12px; color: #666;">上传者: {{ video.uploaded_by }} | 时间: {{ video.uploaded_at }}</p>
-
-        <video controls width="100%" style="border-radius: 8px;">
+    <div class="video-card">
+        <h3 style="color: #444; margin-bottom: 20px;">🎬 {{ video.title }}</h3>
+        <video controls width="100%" style="border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
             <source src="/static/videos/{{ video.filename }}" type="video/mp4">
-            您的浏览器不支持视频播放。
         </video>
 
-        <form action="/delete-video" method="post" style="margin-top: 10px;">
-            <input type="hidden" name="video_id" value="{{ video.id }}">
-            <input type="password" name="delete_password" placeholder="删除密码" required style="border: 1px solid #ddd; padding: 5px; border-radius: 4px;">
-            <button type="submit" style="background-color: #dc3545; color: white; padding: 5px 12px; border: none; border-radius: 4px; cursor: pointer;">删除视频</button>
-        </form>
+        {% if role == 'admin' %}
+        <div style="text-align: right; margin-top: 20px;">
+            <form action="/delete-video" method="post">
+                <input type="hidden" name="video_id" value="{{ video.id }}">
+                <button type="submit" style="background: #ff7675; color: white; border: none; padding: 10px 25px; border-radius: 15px; cursor: pointer;">
+                    删除此课件
+                </button>
+            </form>
+        </div>
+        {% endif %}
     </div>
     {% endfor %}
 </div>

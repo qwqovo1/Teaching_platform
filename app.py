@@ -1,23 +1,20 @@
-# Teaching_platform/login-demo/app.py
+# app.py
 import os
 import base64
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse
 from modules.routes import router
-from modules.database import init_db  # 初始化数据库
+from modules.database import init_db
 
-# 初始化数据库（创建 users 和 videos 表）
 init_db()
+app = FastAPI(title="深圳大学 - 神经语言学实验室平台")
 
-app = FastAPI(title="教学平台")
-
-# 创建必要目录
 os.makedirs("static/uploads", exist_ok=True)
 os.makedirs("static/videos", exist_ok=True)
-os.makedirs("static/icons", exist_ok=True)
+os.makedirs("Data", exist_ok=True)
 
-# 挂载静态文件
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 app.include_router(router)
@@ -38,20 +35,25 @@ async def register_page(request: Request):
 async def change_password_page(request: Request):
     return templates.TemplateResponse("change_password.html", {"request": request})
 
-# --- 新增：视频一级目录路由 ---
 @app.get("/video-catalog")
 async def video_catalog(request: Request):
     from modules.routes import check_session
-    from fastapi.responses import RedirectResponse
     if not check_session(request):
         return RedirectResponse(url="/login-page", status_code=303)
     return templates.TemplateResponse("video_catalog.html", {"request": request})
 
+@app.get("/test-catalog")
+async def test_catalog(request: Request):
+    from modules.routes import check_session
+    if not check_session(request):
+        return RedirectResponse(url="/login-page", status_code=303)
+    return templates.TemplateResponse("test_catalog.html", {"request": request})
+
 def create_default_avatar():
-    DEFAULT_AVATAR_PATH = "static/icons/default.png"
-    if not os.path.exists(DEFAULT_AVATAR_PATH):
+    path = "static/default-avatar.png"
+    if not os.path.exists(path):
         pixel_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
-        with open(DEFAULT_AVATAR_PATH, "wb") as f:
+        with open(path, "wb") as f:
             f.write(base64.b64decode(pixel_b64))
 
 create_default_avatar()
@@ -59,10 +61,5 @@ create_default_avatar()
 if __name__ == "__main__":
     import uvicorn
     print("🚀 教学平台已启动！")
-    print("🌐 访问地址:")
-    print(" 欢迎页: http://localhost:8000")
-    print(" 登录页: http://localhost:8000/login-page")
-    print(" 注册页: http://localhost:8000/register-page")
-    print(" 视频页: http://localhost:8000/videos")
-    print(" 首页（需登录）: http://localhost:8000/home")
+    print("🌐 访问地址： http://localhost:8000")
     uvicorn.run(app, host="0.0.0.0", port=8000)

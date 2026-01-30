@@ -5,23 +5,16 @@
     <title>深圳大学 - 神经语言学实验室</title>
     <link rel="stylesheet" href="/static/css/global.css">
 </head>
-<body>
-    <!-- 动态装饰容器 -->
-    <div class="decor-container">
-        <!-- 通过CSS绘制的小星星和花朵 -->
-        <div class="particle" style="left: 10%; font-size: 24px; animation-duration: 8s;">✨</div>
-        <div class="particle" style="left: 30%; font-size: 30px; animation-duration: 12s;">🌸</div>
-        <div class="particle" style="left: 55%; font-size: 20px; animation-duration: 7s;">⭐</div>
-        <div class="particle" style="left: 80%; font-size: 28px; animation-duration: 15s;">💮</div>
-        <div class="particle" style="left: 90%; font-size: 22px; animation-duration: 10s;">✨</div>
-    </div>
+<body class="{% block page_bg %}{% endblock %}">
+    <!-- 动态装饰容器（仅首页和首页展示） -->
+    {% block decorations %}{% endblock %}
 
     <nav class="global-nav-bar">
         <a href="/home" class="nav-item">首页</a>
         <a href="/video-catalog" class="nav-item">视频课室</a>
+        <a href="/test-catalog" class="nav-item">测试题</a>
         <a href="/profile" class="nav-item">个人中心</a>
     </nav>
-
     <div class="main-content">
         {% block content %}{% endblock %}
     </div>

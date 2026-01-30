@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; text-align: center;">
+    <h1 style="color: #4a4a4a; margin-bottom: 50px;">实验测试题</h1>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px;">
+        <a href="/eeg-test" class="golden-btn" style="background: var(--primary-btn); text-decoration: none;">
+            <span style="color: white;">🧠 脑电实验测试</span>
+        </a>
+        <div class="golden-btn lock-btn"><span>🔒 语言模型测试</span></div>
+    </div>
+</div>
+<style>
+.golden-btn { width: 240px; height: 148px; display: flex; align-items: center; justify-content: center; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: 0.4s; }
+.lock-btn { background: rgba(255,255,255,0.5); border: 1px dashed #ccc; color: #999; cursor: not-allowed; }
+.golden-btn:hover:not(.lock-btn) { transform: translateY(-10px); }
+</style>
+{% endblock %}
