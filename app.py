@@ -12,19 +12,18 @@ init_db()
 
 app = FastAPI(title="教学平台")
 
-# 创建必要目录，包括存放默认头像的 icons 目录
+# 创建必要目录
 os.makedirs("static/uploads", exist_ok=True)
 os.makedirs("static/videos", exist_ok=True)
-os.makedirs("static/icons", exist_ok=True)  # <-- 确保存放默认头像的目录存在
+os.makedirs("static/icons", exist_ok=True)
 
-# 挂载静态文件（/static 包含 uploads, videos, icons）
+# 挂载静态文件
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 app.include_router(router)
 
 @app.get("/")
 async def root(request: Request):
-    """欢迎页（使用 index.html）"""
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/login-page")
@@ -39,13 +38,18 @@ async def register_page(request: Request):
 async def change_password_page(request: Request):
     return templates.TemplateResponse("change_password.html", {"request": request})
 
-# 注意：/videos、/home、/profile 等路由已在 modules/routes.py 中定义，
-# 因此此处不再重复定义，避免冲突。
+# --- 新增：视频一级目录路由 ---
+@app.get("/video-catalog")
+async def video_catalog(request: Request):
+    from modules.routes import check_session
+    from fastapi.responses import RedirectResponse
+    if not check_session(request):
+        return RedirectResponse(url="/login-page", status_code=303)
+    return templates.TemplateResponse("video_catalog.html", {"request": request})
 
 def create_default_avatar():
-    DEFAULT_AVATAR_PATH = "static/icons/default.png"  # <-- 使用相对路径
+    DEFAULT_AVATAR_PATH = "static/icons/default.png"
     if not os.path.exists(DEFAULT_AVATAR_PATH):
-        # 1x1 透明 PNG 像素（base64 编码）
         pixel_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
         with open(DEFAULT_AVATAR_PATH, "wb") as f:
             f.write(base64.b64decode(pixel_b64))

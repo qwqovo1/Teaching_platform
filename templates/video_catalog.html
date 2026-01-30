@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; text-align: center;">
+    <h1 style="color: #4a4a4a; font-size: 30px; margin-bottom: 50px; text-shadow: 2px 2px 4px rgba(255,255,255,0.8);">
+        教学视频分类
+    </h1>
+
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px;">
+        <!-- 脑电实验视频 (EEG) -->
+        <a href="/videos" class="golden-btn" style="background: var(--primary-btn); text-decoration: none;">
+            <span style="font-size: 20px; color: white;">🧠 脑电实验视频</span>
+        </a>
+
+        <!-- 待定选项渲染 -->
+        <div class="golden-btn lock-btn"><span>🔒 实验数据分析</span></div>
+        <div class="golden-btn lock-btn"><span>🔒 语言模型基础</span></div>
+        <div class="golden-btn lock-btn"><span>🔒 神经语言学概论</span></div>
+    </div>
+</div>
+
+<style>
+.golden-btn {
+    width: 240px; height: 148px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.lock-btn {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px dashed #ccc;
+    color: #999;
+    cursor: not-allowed;
+}
+.golden-btn:hover:not(.lock-btn) {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(118, 75, 162, 0.3);
+}
+</style>
+{% endblock %}

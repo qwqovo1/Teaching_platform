@@ -1,60 +1,28 @@
-<!-- templates/profile.html -->
 {% extends "base.html" %}
-{% block title %}个人中心 - 教学平台{% endblock %}
-{% block page_class %}page-profile{% endblock %}
 {% block content %}
-<div class="profile-container">
-    <!-- 头像预览 -->
-    <img src="{% if avatar %}{{ avatar }}{% else %}/static/icons/default.png{% endif %}" alt="头像" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 20px auto 10px; display: block;">
+<div class="card-container" style="max-width: 420px;">
+    <!-- 头像预览区域，拉大下边距 -->
+    <div style="margin-bottom: 35px;">
+        <img src="{% if avatar %}{{ avatar }}{% else %}/static/icons/default.png{% endif %}"
+             style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #6a11cb; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    </div>
 
     <form action="/update-profile" method="post" enctype="multipart/form-data">
-        <label for="avatar-upload">上传新头像:</label>
-        <input type="file" id="avatar-upload" name="avatar_upload" accept="image/*"><br><br>
-
-        <label for="nickname">昵称:</label>
-        <input type="text" id="nickname" name="nickname" value="{{ nickname }}" required><br><br>
-
-        <button type="submit">更新信息</button>
+        <div class="form-group">
+            <label class="form-label">上传新头像</label>
+            <input type="file" name="avatar_upload" accept="image/*" class="form-input" style="padding-top: 8px;">
+        </div>
+        <div class="form-group">
+            <label class="form-label">修改昵称</label>
+            <input type="text" name="nickname" value="{{ nickname }}" class="form-input" required>
+        </div>
+        <button type="submit" class="btn btn-primary">保存个人信息</button>
     </form>
 
-    <!-- 新增：退出登录按钮 -->
-    <div style="margin-top: 20px; text-align: center;">
-        <a href="/logout" style="color: #dc3545; text-decoration: none; font-size: 14px;">退出登录</a>
+    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+        <form action="/logout" method="post">
+            <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 15px; font-weight: bold;">[ 永久退出登录 ]</button>
+        </form>
     </div>
 </div>
-
-<style>
-.profile-container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    text-align: center;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-input[type="file"], input[type="text"] {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 10px;
-}
-
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-</style>
 {% endblock %}

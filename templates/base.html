@@ -1,81 +1,29 @@
-<!-- templates/base.html -->
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}教学平台{% endblock %}</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>深圳大学 - 神经语言学实验室</title>
+    <link rel="stylesheet" href="/static/css/global.css">
 </head>
 <body>
-    <div class="container">
-        {% block content %}{% endblock %}
+    <!-- 动态装饰容器 -->
+    <div class="decor-container">
+        <!-- 通过CSS绘制的小星星和花朵 -->
+        <div class="particle" style="left: 10%; font-size: 24px; animation-duration: 8s;">✨</div>
+        <div class="particle" style="left: 30%; font-size: 30px; animation-duration: 12s;">🌸</div>
+        <div class="particle" style="left: 55%; font-size: 20px; animation-duration: 7s;">⭐</div>
+        <div class="particle" style="left: 80%; font-size: 28px; animation-duration: 15s;">💮</div>
+        <div class="particle" style="left: 90%; font-size: 22px; animation-duration: 10s;">✨</div>
     </div>
 
-    <footer class="footer">
-        <div class="footer-nav">
-            <!-- ✅ 关键修改：首页 → /home，欢迎页是 / -->
-            <a href="/home" class="footer-link">首页</a>
-            <a href="/videos" class="footer-link">视频</a>
-            <a href="/profile" class="footer-link">我的</a>
-        </div>
-    </footer>
+    <nav class="global-nav-bar">
+        <a href="/home" class="nav-item">首页</a>
+        <a href="/video-catalog" class="nav-item">视频课室</a>
+        <a href="/profile" class="nav-item">个人中心</a>
+    </nav>
+
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>
-
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background-color: #f5f5f5;
-}
-
-.container {
-    min-height: calc(100vh - 80px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-.footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 80px;
-    background-color: white;
-    border-top: 1px solid #ddd;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-}
-
-.footer-nav {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    max-width: 600px;
-}
-
-.footer-link {
-    text-decoration: none;
-    color: #666;
-    font-size: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: color 0.2s;
-}
-
-.footer-link:hover,
-.footer-link.active {
-    color: #007bff;
-}
-</style>

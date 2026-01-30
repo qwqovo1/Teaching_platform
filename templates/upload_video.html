@@ -1,25 +1,24 @@
-<!-- login-demo/templates/upload_video.html -->
 {% extends "base.html" %}
-{% block title %}上传视频 - 教学平台{% endblock %}
 {% block content %}
 <div class="card-container">
-    <h2>上传教学视频</h2>
-    {% if error %}
-        <div class="error-message">{{ error }}</div>
-    {% endif %}
+    <h2 style="margin-bottom: 25px;">上传教学视频</h2>
     <form method="post" action="/upload-video" enctype="multipart/form-data">
         <div class="form-group">
-            <label class="form-label">视频标题:</label>
-            <input type="text" name="title" class="form-input" required maxlength="100">
+            <label class="form-label">视频标题</label>
+            <input type="text" name="title" class="form-input" required>
         </div>
         <div class="form-group">
-            <label class="form-label">选择视频文件 (MP4/AVI/MOV/WebM):</label>
-            <input type="file" name="video_file" accept="video/*" required>
+            <label class="form-label">上传授权密码</label>
+            <input type="password" name="upload_password" class="form-input" placeholder="请输入授权密码" required>
         </div>
-        <button type="submit" class="btn btn-primary">上传视频</button>
+        <div class="form-group">
+            <label class="form-label">选择视频文件</label>
+            <input type="file" name="video_file" accept="video/*" class="form-input" style="padding-top: 8px;" required>
+        </div>
+        <button type="submit" class="btn btn-primary">确认并开始上传</button>
     </form>
-    <div style="margin-top: 15px;">
-        <a href="/videos" class="link">← 返回视频列表</a>
+    <div style="margin-top: 20px;">
+        <a href="/video-catalog" style="color: #6a11cb; text-decoration: none; font-weight: bold;">← 返回分类目录</a>
     </div>
 </div>
 {% endblock %}
