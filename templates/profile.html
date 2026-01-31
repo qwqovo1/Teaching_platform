@@ -1,48 +1,84 @@
 {% extends "base.html" %}
-{% block page_bg %}bg-work{% endblock %}
 
 {% block content %}
-<div class="card-container" style="max-width: 500px;">
-    <form action="/update-profile" method="post" enctype="multipart/form-data">
-        <label style="cursor: pointer;">
-            <img src="{{ avatar }}" id="avatar-preview" style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid #764ba2; object-fit: cover;">
-            <input type="file" name="avatar_file" style="display:none;" onchange="preview(this)">
-            <p style="font-size: 12px; color: #764ba2;">点击头像更换</p>
-        </label>
+<div class="card-container" style="max-width: 600px; position: relative; z-index: 10;">
+    <h2 class="artistic-title" style="font-size: 2.5rem;">个人中心</h2>
 
-        <div class="form-group">
-            <label>昵称修改</label>
-            <input type="text" name="nickname" class="form-input" value="{{ nickname }}">
+    <!-- 用户资料 -->
+    <form action="/update-profile" method="post" enctype="multipart/form-data">
+        <label style="cursor: pointer; display: inline-block;">
+            <img src="{{ avatar }}" id="avatar-preview"
+                 style="width: 110px; height: 110px; border-radius: 50%; border: 4px solid #764ba2; object-fit: cover; background: #fff;">
+            <input type="file" name="avatar_file" style="display:none;" onchange="preview(this)">
+            <p style="font-size: 12px; color: #764ba2; font-weight: bold; margin-top: 10px;">点击更换头像</p>
+        </label>
+        <div style="text-align: left; margin-top: 15px;">
+            <label style="font-weight:bold;">昵称：</label>
+            <input type="text" name="nickname" class="form-input" value="{{ nickname }}" required>
         </div>
-        <button type="submit" class="btn btn-primary" style="font-size: 12px; padding: 5px 15px;">保存资料</button>
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">更新个人资料</button>
     </form>
 
-    <div style="text-align: left; margin-top: 30px; background: #fff; padding: 20px; border-radius: 20px;">
-        <h4 style="color: #764ba2;">我的答题记录存档</h4>
-        {% for r in records %}
-        <a href="/download-record/{{ r }}" target="_blank" style="display:block; margin: 10px 0; color: #34495e; text-decoration: none;">📄 {{ r }}</a>
-        {% endfor %}
+    <div style="margin-top: 15px; text-align: right;">
+        <a href="/change-password" style="color: #666; font-size: 13px; text-decoration: none;">🔐 修改登录密码</a>
+    </div>
+
+    <!-- 成绩存档展示 (不提供下载) -->
+    <div style="margin-top: 30px; text-align: left; background: rgba(255,255,255,0.85); padding: 20px; border-radius: 20px;">
+        <h4 style="color: #764ba2; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">📊 实验成绩存档</h4>
+        <div style="max-height: 150px; overflow-y: auto;">
+            {% for r in records %}
+            <p style="margin: 10px 0; color: #2ed573; font-size: 14px; font-weight: bold;">✓ 已完成存档：{{ r }}</p>
+            {% else %}
+            <p style="color: #999; font-size: 13px;">暂无答题记录</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 🌟 原有功能：视频进度详情 (已回归) -->
+    <div style="margin-top: 20px;">
+        <button onclick="toggleProgress()" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border:none;">📅 查看课件观看进度</button>
+        <div id="prog-box" style="display:none; margin-top:15px; background:rgba(255,255,255,0.9); padding:15px; border-radius:15px; text-align:left;">
+            <h5 style="margin: 0 0 10px 0;">已同步进度列表：</h5>
+            <div id="prog-content" style="font-size: 14px;">正在同步中...</div>
+        </div>
     </div>
 
     {% if role == 'admin' %}
-    <div style="margin-top: 30px; border-top: 2px dashed #eee; padding-top: 20px;">
-        <form action="/reset-all" method="post">
-            <button type="submit" class="btn" style="background:#ff4757; color:white; width: 100%;">刷新所有成员答题机会</button>
+    <div style="margin-top: 30px; border-top: 2px dashed #ff4757; padding-top: 20px;">
+        <p style="color: #ff4757; font-weight: bold; font-size: 13px; text-align: left;">🛡️ 管理员面板：</p>
+        <form action="/reset-all" method="post" onsubmit="return confirm('确定要刷新所有成员答题机会吗？（记录文件会保留）');">
+            <button type="submit" class="btn-primary" style="background: #ff4757; width: 100%;">刷新交卷机会</button>
         </form>
     </div>
     {% endif %}
 
-    <form action="/logout" method="post" style="margin-top: 20px;">
-        <button type="submit" style="background:none; border:none; color:#999; cursor:pointer;">[ 退出登录 ]</button>
+    <form action="/logout" method="post" style="margin-top: 30px;">
+        <button type="submit" style="background:none; border:none; color:#bbb; cursor:pointer; font-size: 13px; text-decoration: underline;">[ 退出登录 ]</button>
     </form>
 </div>
 
 <script>
-function preview(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) { document.getElementById('avatar-preview').src = e.target.result; }
-        reader.readAsDataURL(input.files[0]);
+function preview(i) {
+    if(i.files && i.files[0]) {
+        var r = new FileReader();
+        r.onload = e => document.getElementById('avatar-preview').src = e.target.result;
+        r.readAsDataURL(i.files[0]);
+    }
+}
+
+// 视频进度抓取逻辑
+async function toggleProgress() {
+    const box = document.getElementById('prog-box');
+    const content = document.getElementById('prog-content');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    if(box.style.display === 'block') {
+        try {
+            const res = await fetch('/get-video-progress');
+            const data = await res.json();
+            if(!data || data.length === 0) content.innerHTML = "暂无观看记录";
+            else content.innerHTML = data.map(i => `<div style="padding:8px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><span>🎬 ${i.title}</span> <b style="color:#764ba2;">${i.progress}</b></div>`).join('');
+        } catch(e) { content.innerHTML = "同步失败"; }
     }
 }
 </script>

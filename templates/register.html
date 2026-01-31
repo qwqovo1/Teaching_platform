@@ -1,27 +1,71 @@
-<!-- login-demo/templates/register.html -->
 {% extends "base.html" %}
-{% block title %}注册 - 教学平台{% endblock %}
+
+{% block title %}注册 - 深圳大学神经语言学实验室{% endblock %}
+
 {% block content %}
-<div class="card-container">
-    <h2 class="text-center">用户注册</h2>
+<div class="card-container" style="max-width: 500px; margin-top: 60px; position: relative; z-index: 10;">
+
+    <!-- 炫彩流动艺术字标题 -->
+    <div class="artistic-title" style="font-size: 2.5rem; margin-bottom: 30px;">新成员注册</div>
+
+    <!-- 错误信息反馈区域 -->
     {% if error %}
-    <p class="error-message">{{ error }}</p>
+    <div style="background: rgba(255, 71, 87, 0.1); border-left: 5px solid #ff4757; padding: 12px; margin-bottom: 25px; border-radius: 8px;">
+        <p style="color: #ff4757; font-weight: bold; margin: 0; font-size: 0.95rem;">⚠️ {{ error }}</p>
+    </div>
     {% endif %}
-    <form action="/register" method="post">
-        <div class="form-group">
-            <label class="form-label" for="username">用户名:</label>
-            <input class="form-input" type="text" id="username" name="username" required>
-            <small>只能包含字母、数字和下划线，至少2位</small>
+
+    <!-- 注册表单：Action 指向后端注册接口 -->
+    <form action="/register" method="post" style="text-align: left;">
+
+        <!-- 用户名输入 -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; color: #444; font-weight: bold; margin-left: 5px;">
+                选择登录账号 (Username)
+            </label>
+            <input class="form-input"
+                   type="text"
+                   name="username"
+                   placeholder="请输入 2 位以上的字母或数字"
+                   style="font-size: 1rem; padding: 14px; border: 2px solid #f1f2f6; transition: 0.3s;"
+                   onfocus="this.style.borderColor='#764ba2'"
+                   onblur="this.style.borderColor='#f1f2f6'"
+                   required>
+            <p style="font-size: 0.8rem; color: #888; margin-top: 5px; margin-left: 5px;">* 账号注册后不可修改</p>
         </div>
-        <div class="form-group">
-            <label class="form-label" for="password">密码:</label>
-            <input class="form-input" type="password" id="password" name="password" required>
-            <small>至少6位</small>
+
+        <!-- 密码输入 -->
+        <div style="margin-bottom: 30px;">
+            <label style="display: block; margin-bottom: 8px; color: #444; font-weight: bold; margin-left: 5px;">
+                设置安全密码 (Password)
+            </label>
+            <input class="form-input"
+                   type="password"
+                   name="password"
+                   placeholder="请输入至少 6 位安全密码"
+                   style="font-size: 1rem; padding: 14px; border: 2px solid #f1f2f6; transition: 0.3s;"
+                   onfocus="this.style.borderColor='#764ba2'"
+                   onblur="this.style.borderColor='#f1f2f6'"
+                   required>
         </div>
-        <button class="btn btn-primary" type="submit">注册</button>
+
+        <!-- 提交按钮 -->
+        <button class="btn-primary" type="submit"
+                style="width: 100%; font-size: 1.15rem; padding: 15px; letter-spacing: 2px; box-shadow: 0 8px 20px rgba(118, 75, 162, 0.3);">
+            确认注册，领取校徽头像 🚀
+        </button>
     </form>
-    <p class="text-center" style="margin-top: 20px;">
-        已有账号？<a class="link" href="/login-page">[立即登录]</a>
-    </p>
+
+    <!-- 底部跳转链接 -->
+    <div style="margin-top: 30px; border-top: 1px solid #f1f2f6; padding-top: 20px;">
+        <p style="color: #666; font-size: 0.95rem;">
+            已有实验室账号？
+            <a href="/login-page" style="color: #764ba2; font-weight: bold; text-decoration: none; border-bottom: 2px solid #764ba2;">
+                [ 返回登录入口 ]
+            </a>
+        </p>
+    </div>
 </div>
+
+<!-- 视觉净化：已彻底移除所有 deco-item 装饰物 -->
 {% endblock %}

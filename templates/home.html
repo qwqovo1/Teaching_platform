@@ -1,21 +1,59 @@
 {% extends "base.html" %}
-{% block page_bg %}bg-home{% endblock %}
-
-{% block decorations %}
-    <div class="deco-item" style="top: 10%; right: 20%;">⭐</div>
-    <div class="deco-item" style="bottom: 30%; left: 15%;">💝</div>
-    <div class="deco-item" style="top: 40%; left: 5%;">🌻</div>
-    <div class="deco-item" style="bottom: 15%; right: 10%;">✨</div>
-{% endblock %}
 
 {% block content %}
-<div class="card-container">
-    <img src="{{ user.avatar }}" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-    <h3>你好, {{ nickname }}</h3>
-    <p style="color: #666;">欢迎回到实验室成员专属空间</p>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px;">
-        <a href="/video-catalog" class="btn btn-primary" style="font-size: 14px;">视频学习</a>
-        <a href="/test-catalog" class="btn btn-primary" style="font-size: 14px; background: #28a745;">实验测试</a>
+<!-- 首页：实验室成员专属空间 -->
+<div class="card-container" style="max-width: 650px; text-align: center; margin-top: 40px; position: relative; z-index: 10;">
+
+    <!-- 用户专属头像展示区域：严格隔离，确保新账号显示默认校徽 -->
+    <div style="position: relative; display: inline-block; margin-bottom: 10px;">
+        <div style="padding: 5px; background: linear-gradient(135deg, #ff0080, #40e0d0); border-radius: 50%; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+            <img src="{{ user_avatar }}"
+                 alt="用户头像"
+                 style="width: 125px; height: 125px; border-radius: 50%; border: 4px solid #fff; object-fit: cover; background: #fff; display: block;">
+        </div>
+        <!-- 在线状态小绿点 -->
+        <div style="position: absolute; bottom: 8px; right: 8px; background: #43e97b; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"></div>
+    </div>
+
+    <!-- 炫彩流动艺术字标题 -->
+    <div class="artistic-title" style="font-size: 2.8rem; margin: 15px 0;">你好, {{ nickname }}</div>
+
+    <div style="background: rgba(255, 255, 255, 0.5); padding: 15px; border-radius: 15px; margin: 20px 0;">
+        <p style="color: #444; font-size: 1.15rem; line-height: 1.8; margin: 0;">
+            欢迎回到 <span style="color: #764ba2; font-weight: bold;">深圳大学神经语言学实验室</span>。<br>
+            您的科研探索之旅正在继续，请选择以下板块进入：
+        </p>
+    </div>
+
+    <!-- 功能导航栅格系统 -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 30px; padding: 0 10px;">
+        <!-- 视频学习入口 -->
+        <a href="/videos" class="btn-primary"
+           style="text-decoration: none; padding: 25px 15px; font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; border-radius: 20px; transition: 0.4s; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <span style="font-size: 2.5rem; margin-bottom: 12px;">🎥</span>
+            <span style="font-weight: bold; letter-spacing: 1px;">视频学习课室</span>
+        </a>
+
+        <!-- 脑电测试入口 -->
+        <a href="/eeg-test" class="btn-primary"
+           style="text-decoration: none; padding: 25px 15px; font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; border-radius: 20px; transition: 0.4s; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <span style="font-size: 2.5rem; margin-bottom: 12px;">🧠</span>
+            <span style="font-weight: bold; letter-spacing: 1px;">脑电实验测试</span>
+        </a>
+    </div>
+
+    <!-- 底部角色信息展示 -->
+    <div style="margin-top: 40px; border-top: 1px dashed #ccc; padding-top: 20px;">
+        <div style="display: inline-block; padding: 6px 15px; background: rgba(0,0,0,0.05); border-radius: 20px;">
+            <p style="color: #666; font-size: 0.95rem; margin: 0;">
+                当前访问权限:
+                <span style="color: #764ba2; font-weight: 900;">
+                    {% if role == 'admin' %} 🛡️ 超级管理员 {% else %} 🎓 普通实验成员 {% endif %}
+                </span>
+            </p>
+        </div>
     </div>
 </div>
+
+<!-- 视觉净化：已彻底移除所有 deco-item 元素 -->
 {% endblock %}

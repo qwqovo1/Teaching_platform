@@ -1,65 +1,45 @@
 # app.py
-import os
-import base64
-from fastapi import FastAPI, Request
+import uvicorn
+import socket
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse
 from modules.routes import router
-from modules.database import init_db
 
-init_db()
-app = FastAPI(title="深圳大学 - 神经语言学实验室平台")
+app = FastAPI()
 
-os.makedirs("static/uploads", exist_ok=True)
-os.makedirs("static/videos", exist_ok=True)
-os.makedirs("Data", exist_ok=True)
-
+# 挂载静态文件
 app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
 app.include_router(router)
 
-@app.get("/")
-async def root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/login-page")
-async def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+def get_host_ip():
+    """获取本机真实局域网IP"""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # 这里连接一个公网地址以诱导系统选出正确的局域网网卡
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+    except Exception:
+        ip = "127.0.0.1"
+    finally:
+        s.close()
+    return ip
 
-@app.get("/register-page")
-async def register_page(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request})
-
-@app.get("/change-password")
-async def change_password_page(request: Request):
-    return templates.TemplateResponse("change_password.html", {"request": request})
-
-@app.get("/video-catalog")
-async def video_catalog(request: Request):
-    from modules.routes import check_session
-    if not check_session(request):
-        return RedirectResponse(url="/login-page", status_code=303)
-    return templates.TemplateResponse("video_catalog.html", {"request": request})
-
-@app.get("/test-catalog")
-async def test_catalog(request: Request):
-    from modules.routes import check_session
-    if not check_session(request):
-        return RedirectResponse(url="/login-page", status_code=303)
-    return templates.TemplateResponse("test_catalog.html", {"request": request})
-
-def create_default_avatar():
-    path = "static/default-avatar.png"
-    if not os.path.exists(path):
-        pixel_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
-        with open(path, "wb") as f:
-            f.write(base64.b64decode(pixel_b64))
-
-create_default_avatar()
 
 if __name__ == "__main__":
-    import uvicorn
-    print("🚀 教学平台已启动！")
-    print("🌐 访问地址： http://localhost:8000")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    local_ip = get_host_ip()
+    port = 8000
+
+    # --- 醒目的末尾添加：访问提示加强 ---
+    print("\n" + "█" * 60)
+    print("🚀  深大神经语言学实验室平台 - 服务已就绪")
+    print("█" * 60)
+    print(f"👉 【本机极速访问】:  http://127.0.0.1:{port}")
+    print(f"👉 【本机极速访问】:  http://localhost:{port}")
+    print("-" * 60)
+    print(f"📱 【同 Wi-Fi 设备访问】: http://{local_ip}:{port}")
+    print(f"📡 【内网穿透访问】: (请使用你的花生壳/frp提供的公网网址)")
+    print("█" * 60 + "\n")
+
+    # host="0.0.0.0" 是关键，它允许外部网络（手机）访问
+    uvicorn.run(app, host="0.0.0.0", port=port)

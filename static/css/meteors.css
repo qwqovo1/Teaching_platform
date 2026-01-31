@@ -1,0 +1,44 @@
+/* static/css/meteors.css */
+.meteor-container {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none; z-index: 1; overflow: hidden;
+}
+
+.meteor {
+    position: absolute;
+    --m-color: #fff;
+    --h-size: 25px;
+    width: 4px; height: 4px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0;
+    transform: rotate(45deg);
+    animation: realistic-fall 13s cubic-bezier(0.15, 0, 0.2, 1) infinite;
+}
+
+.meteor::after {
+    content: "";
+    position: absolute;
+    top: 50%; right: 2px;
+    transform: translateY(-50%);
+    width: 250px; height: 4px;
+    background: linear-gradient(to left, #fff 0%, var(--m-color) 30%, rgba(255,255,255,0.1) 80%, transparent 100%);
+    clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+    filter: blur(1px);
+}
+
+@keyframes realistic-fall {
+    0% { transform: translate(-100px, -100px) rotate(45deg); opacity: 0; }
+    2% { opacity: 1; box-shadow: 0 0 var(--h-size) calc(var(--h-size)/3) var(--m-color), 0 0 10px 2px #fff; }
+    15% { transform: translate(110vw, 110vh) rotate(45deg); opacity: 0.5; } /* 余晖残留 */
+    20% { transform: translate(115vw, 115vh) rotate(45deg); opacity: 0; } /* 渐隐消失 */
+    100% { opacity: 0; }
+}
+
+/* 颜色分配 */
+.meteor:nth-child(1) { --m-color: #FFD700; --h-size: 25px; top: 0%; left: 15%; animation-delay: 0s; }
+.meteor:nth-child(2) { --m-color: #00BFFF; --h-size: 45px; top: 0%; left: 45%; animation-delay: 5s; }
+.meteor:nth-child(3) { --m-color: #ffffff; --h-size: 15px; top: 10%; left: -5%; animation-delay: 9s; }
+.meteor:nth-child(4) { --m-color: #00FFCC; --h-size: 30px; top: 0%; left: 75%; animation-delay: 2.8s; }
+.meteor:nth-child(5) { --m-color: #FF69B4; --h-size: 22px; top: 40%; left: -10%; animation-delay: 7s; }

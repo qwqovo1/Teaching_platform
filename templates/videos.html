@@ -1,35 +1,7 @@
 {% extends "base.html" %}
+
 {% block content %}
 <style>
-    /* 舒缓流动的炫彩背景 */
-    body {
-        background: linear-gradient(-45deg, #FFDEE9, #B5FFFC, #fbc2eb, #a6c1ee);
-        background-size: 400% 400%;
-        animation: gradientFlow 15s ease infinite;
-        overflow-x: hidden;
-    }
-
-    @keyframes gradientFlow {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    /* 漂浮装饰物动画 */
-    .floating-deco {
-        position: fixed;
-        pointer-events: none;
-        z-index: -1;
-        font-size: 40px;
-        animation: floatAround 6s ease-in-out infinite;
-        opacity: 0.6;
-    }
-
-    @keyframes floatAround {
-        0%, 100% { transform: translateY(0) rotate(0deg); }
-        50% { transform: translateY(-30px) rotate(15deg); }
-    }
-
     .video-card {
         background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(10px);
@@ -38,49 +10,67 @@
         box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         margin-bottom: 40px;
         border: 2px solid #fff;
+        transition: transform 0.3s ease;
     }
-
-    .happy-title {
-        color: #6a82fb;
-        text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
-        font-weight: bold;
-        margin-bottom: 30px;
+    .video-card:hover { transform: translateY(-5px); }
+    .admin-upload-box {
+        border: 2px dashed #6a82fb;
+        padding: 25px;
+        border-radius: 25px;
+        margin-bottom: 40px;
+        background: rgba(255,255,255,0.6);
+    }
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
     }
 </style>
 
-<!-- 动态点缀物 -->
-<div class="floating-deco" style="top: 15%; left: 5%;">☀️</div>
-<div class="floating-deco" style="top: 40%; right: 8%; animation-delay: 1s;">🌈</div>
-<div class="floating-deco" style="bottom: 20%; left: 10%; animation-delay: 2s;">😊</div>
-<div class="floating-deco" style="top: 70%; right: 15%; animation-delay: 3s;">😊</div>
-<div class="floating-deco" style="top: 10%; right: 30%; animation-delay: 4s;">🌈</div>
-
-<div class="container" style="max-width: 900px; margin: 0 auto; text-align: center; padding-top: 50px;">
-    <h1 class="happy-title">✨ 教学视频课室 ✨</h1>
+<div class="container" style="max-width: 900px; margin: 0 auto; text-align: center; padding-top: 50px; position: relative; z-index: 10;">
+    <h1 class="artistic-title" style="font-size: 3.5rem; margin-bottom: 40px;">✨ 教学视频课室 ✨</h1>
 
     {% if role == 'admin' %}
-    <div class="video-card" style="border: 2px dashed #6a82fb;">
-        <h4 style="color: #764ba2;">发布新课程 (管理员免密)</h4>
+    <div class="video-card admin-upload-box">
+        <h4 style="color: #764ba2; margin-top: 0;">发布新课程 (管理员专用)</h4>
         <form action="/upload-video" method="post" enctype="multipart/form-data">
-            <input type="text" name="title" class="form-input" placeholder="视频标题" required style="margin-bottom:15px;">
-            <input type="file" name="video_file" accept="video/*" style="margin-bottom:15px; display:block; width:100%;">
-            <button type="submit" class="btn btn-primary" style="background: #6a82fb; border:none; width: 200px;">点击上传 🚀</button>
+            <input type="text" name="title" class="form-input" placeholder="请输入视频课件标题" required>
+            <div style="margin-bottom: 15px;">
+                <input type="file" name="video_file" accept="video/*" style="cursor: pointer;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #6a82fb, #fc5c7d); border:none; width: 220px; padding: 12px; color: white; font-weight: bold; border-radius: 15px; cursor: pointer;">
+                确认上传课件 🚀
+            </button>
         </form>
     </div>
     {% endif %}
 
     {% for video in videos %}
     <div class="video-card">
-        <h3 style="color: #444; margin-bottom: 20px;">🎬 {{ video.title }}</h3>
-        <video controls width="100%" style="border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-            <source src="/static/videos/{{ video.filename }}" type="video/mp4">
+        <h3 style="color: #444; margin-bottom: 20px; font-weight: bold;">🎬 {{ video.title }}</h3>
+
+        <!-- 修改点：1. preload改为auto加速预缓冲 2. src末尾增加#t=0.1诱导首帧加载 -->
+        <video id="video-{{ video.id }}"
+               controls
+               playsinline
+               webkit-playsinline
+               preload="auto"
+               width="100%"
+               style="border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background: #000;"
+               onplay="initProgress('{{ video.id }}')"
+               ontimeupdate="updateProgress('{{ video.id }}', this)">
+            <source src="/video-stream/{{ video.filename }}#t=0.1" type="video/mp4">
+            您的浏览器不支持 HTML5 视频播放。
         </video>
 
         {% if role == 'admin' %}
         <div style="text-align: right; margin-top: 20px;">
-            <form action="/delete-video" method="post">
+            <form action="/delete-video" method="post" onsubmit="return confirm('确定要删除这个课件吗？');">
                 <input type="hidden" name="video_id" value="{{ video.id }}">
-                <button type="submit" style="background: #ff7675; color: white; border: none; padding: 10px 25px; border-radius: 15px; cursor: pointer;">
+                <button type="submit" style="background: #ff7675; color: white; border: none; padding: 10px 25px; border-radius: 15px; cursor: pointer; font-weight: bold;">
                     删除此课件
                 </button>
             </form>
@@ -89,4 +79,26 @@
     </div>
     {% endfor %}
 </div>
+
+<script>
+    const lastUpdateTimes = {};
+    function initProgress(videoId) { console.log("开始观看视频 ID:", videoId); }
+
+    function updateProgress(videoId, videoElement) {
+        const now = Date.now();
+        if (!lastUpdateTimes[videoId] || now - lastUpdateTimes[videoId] > 5000) {
+            const duration = videoElement.duration;
+            const currentTime = videoElement.currentTime;
+            if (!duration) return;
+            const percent = Math.floor((currentTime / duration) * 100);
+            const progressText = percent + "%";
+            const formData = new FormData();
+            formData.append("video_id", videoId);
+            formData.append("progress", progressText);
+            fetch("/update-progress", { method: "POST", body: formData }).then(response => {
+                if(response.ok) { lastUpdateTimes[videoId] = now; }
+            });
+        }
+    }
+</script>
 {% endblock %}

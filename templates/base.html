@@ -1,22 +1,77 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>深圳大学 - 神经语言学实验室</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深圳大学神经语言学实验室平台</title>
     <link rel="stylesheet" href="/static/css/global.css">
+    <link rel="stylesheet" href="/static/css/meteors.css">
 </head>
-<body class="{% block page_bg %}{% endblock %}">
-    <!-- 动态装饰容器（仅首页和首页展示） -->
-    {% block decorations %}{% endblock %}
+<body>
+    <!-- 严格落实：在答题页面和视频播放页面禁止出现流星动画，防止干扰 -->
+    {% if request.url.path not in ["/eeg-test", "/videos"] %}
+    <div class="meteor-container">
+        <!-- 6颗粒子感流星，配合写实CSS特效 -->
+        <div class="meteor"></div>
+        <div class="meteor" style="animation-delay: 2s;"></div>
+        <div class="meteor" style="animation-delay: 4.5s;"></div>
+        <div class="meteor" style="animation-delay: 7s;"></div>
+        <div class="meteor" style="animation-delay: 9.5s;"></div>
+        <div class="meteor" style="animation-delay: 12s;"></div>
+    </div>
+    {% endif %}
 
     <nav class="global-nav-bar">
-        <a href="/home" class="nav-item">首页</a>
-        <a href="/video-catalog" class="nav-item">视频课室</a>
-        <a href="/test-catalog" class="nav-item">测试题</a>
-        <a href="/profile" class="nav-item">个人中心</a>
+        <div class="nav-content" style="display: flex; gap: 35px; align-items: center; justify-content: center; height: 100%;">
+            <a href="/home" class="nav-item">首页</a>
+
+            <!-- 指向多级实验目录入口 -->
+            <a href="/video-catalog" class="nav-item">视频课室</a>
+
+            <!-- 指向多级测试目录入口 -->
+            <a href="/test-catalog" class="nav-item">测试题</a>
+
+            <a href="/profile" class="nav-item">个人中心</a>
+        </div>
     </nav>
-    <div class="main-content">
+
+    <main class="main-content">
         {% block content %}{% endblock %}
-    </div>
+    </main>
+
+    <footer style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 0 20px 0; font-size: 0.8rem;">
+        © 2024 深圳大学神经语言学实验室 | 数字化科研教学平台
+
+        <!-- --- 🌟 末尾新增：加强版访问地址看板 --- -->
+        <div style="margin-top: 30px; display: flex; justify-content: center; padding: 0 15px;">
+            <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); border-radius: 15px; padding: 20px; text-align: left; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <p style="margin: 0 0 12px 0; color: #fff; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center;">
+                    <span style="margin-right: 10px;">🚀</span> 系统访问门户 (加强版)
+                </p>
+                <div style="font-family: 'Consolas', monospace; font-size: 0.8rem; color: rgba(255,255,255,0.9); line-height: 2;">
+                    <div>
+                        <span style="color: #ffd700;">●</span> <b>本地加强访问:</b>
+                        <a href="http://127.0.0.1:8000" style="color: #00ffcc; text-decoration: underline; margin-left: 5px;">http://127.0.0.1:8000</a>
+                    </div>
+                    <div style="margin-top: 5px;">
+                        <span style="color: #2ed573;">●</span> <b>同网络设备访问:</b>
+                        <code id="current-lan-ip" style="background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 4px; color: #fff; margin-left: 5px;">识别中...</code>
+                    </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 0.7rem; color: rgba(255,255,255,0.5);">温馨提示：手机访问请确保与电脑处于同一 Wi-Fi 环境</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 自动提取并显示当前的局域网/域名地址
+        window.addEventListener('load', function() {
+            const currentOrigin = window.location.origin;
+            const lanLabel = document.getElementById('current-lan-ip');
+            if (lanLabel) {
+                lanLabel.innerText = currentOrigin;
+            }
+        });
+    </script>
 </body>
 </html>

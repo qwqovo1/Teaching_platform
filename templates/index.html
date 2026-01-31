@@ -1,24 +1,26 @@
 {% extends "base.html" %}
-{% block page_bg %}bg-index{% endblock %}
-
-{% block decorations %}
-    <div class="deco-item" style="top: 15%; left: 10%;">⭐</div>
-    <div class="deco-item" style="top: 25%; right: 15%;">💖</div>
-    <div class="deco-item" style="bottom: 20%; left: 20%;">🌸</div>
-    <div class="deco-item" style="top: 60%; right: 10%;">✨</div>
-    <div class="deco-item" style="bottom: 10%; right: 25%;">🌷</div>
-{% endblock %}
 
 {% block content %}
-<div class="card-container">
-    <h1 style="color: #2c3e50;">深圳大学</h1>
-    <h2 style="color: #764ba2;">神经语言学实验室平台</h2>
-    <div style="text-align: left; background: rgba(255,255,255,0.5); padding: 20px; border-radius: 20px; margin: 20px 0; font-size: 14px; line-height: 1.6;">
-        欢迎来到实验室教学资源共享平台。在这里您可以学习脑电实验知识，观看教学视频并参与在线测试。
-    </div>
-    <a href="/login-page" class="btn btn-primary" style="width: 200px;">立即登录</a>
-    <p style="margin-top: 20px;">
-        还没有账号？<a href="/register-page" style="color: #764ba2; text-decoration: none; font-weight: bold;">[点击注册]</a>
+<div class="card-container" style="max-width: 650px; margin-top: 40px;">
+    <!-- 深圳大学校徽：确保图片在 static/szu_logo.png -->
+    <img src="/static/szu_logo.png" alt="SZU Logo" style="width: 140px; margin-bottom: 20px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));">
+
+    <div style="font-size: 1.5rem; color: #444; font-weight: bold;">深圳大学</div>
+    <div class="artistic-title">神经语言学实验室</div>
+
+    <p style="color: #666; line-height: 1.8; font-size: 1.1rem; padding: 0 20px;">
+        欢迎来到实验室在线学习系统。<br>
+        这里提供最前沿的课件资源与脑电实验自测题目。
     </p>
+
+    <div style="margin-top: 30px;">
+        <a href="/login-page" class="btn-primary" style="text-decoration: none; display: inline-block;">
+            立即开启探索 🚀
+        </a>
+    </div>
+
+    <div style="margin-top: 25px; font-size: 0.9rem;">
+        还没有账号？ <a href="/register-page" style="color: #ff0080; font-weight: bold; text-decoration: none;">[ 快速注册 ]</a>
+    </div>
 </div>
 {% endblock %}

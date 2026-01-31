@@ -1,68 +1,30 @@
 # modules/database.py
-from __future__ import annotations
-
-import sqlite3
-import os
+import sqlite3, hashlib, os, random, string
 from datetime import datetime, timedelta
 from contextlib import contextmanager
-import hashlib
 
 DB_PATH = "users.db"
 
 def init_db():
+    """初始化数据库结构，包含用户、视频、题目、答案及视频进度表"""
     conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-
-    # 用户表
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        nickname TEXT DEFAULT '',
-        avatar TEXT DEFAULT '/static/icons/default.png',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        expires_at DATETIME NOT NULL
-    )""")
-
-    # 视频表
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS videos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        filename TEXT NOT NULL UNIQUE,
-        uploaded_by TEXT NOT NULL,
-        uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )""")
-
-    # 题目表 (新增)
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS questions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        content TEXT NOT NULL,
-        option_a TEXT NOT NULL,
-        option_b TEXT NOT NULL,
-        option_c TEXT NOT NULL,
-        option_d TEXT NOT NULL,
-        answer TEXT NOT NULL
-    )""")
-
-    # 用户答题记录表 (新增)
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS user_answers (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        question_id INTEGER NOT NULL,
-        selected_option TEXT NOT NULL,
-        is_correct BOOLEAN NOT NULL,
-        UNIQUE(username, question_id)
-    )""")
-
+    c = conn.cursor()
+    # 用户表：头像默认指向校徽
+    c.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password_hash TEXT, nickname TEXT, avatar TEXT DEFAULT '/static/szu_logo.png', expires_at DATETIME)")
+    # 教学视频表
+    c.execute("CREATE TABLE IF NOT EXISTS videos (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, filename TEXT, uploaded_by TEXT, uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP)")
+    # 实验测试题目表
+    c.execute("CREATE TABLE IF NOT EXISTS questions (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, option_a TEXT, option_b TEXT, option_c TEXT, option_d TEXT, answer TEXT)")
+    # 答题记录表：username 和 question_id 唯一绑定，用于限制答题次数
+    c.execute("CREATE TABLE IF NOT EXISTS user_answers (username TEXT, question_id INTEGER, selected_option TEXT, is_correct BOOLEAN, UNIQUE(username, question_id))")
+    # 视频观看进度表
+    c.execute("CREATE TABLE IF NOT EXISTS video_progress (username TEXT, video_id INTEGER, progress TEXT, PRIMARY KEY(username, video_id))")
     conn.commit()
     conn.close()
 
 @contextmanager
-def get_db_connection():
+def get_db():
+    """数据库连接上下文管理器，确保连接安全关闭"""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     try:
@@ -70,91 +32,102 @@ def get_db_connection():
     finally:
         conn.close()
 
-# --- 用户与视频函数 (保持原有) ---
-def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
-
-def create_user(username: str, password: str, nickname: str = '') -> bool:
-    password_hash = hash_password(password)
-    expires_at = datetime.now() + timedelta(days=60)
+def create_user(u, p):
+    """注册新用户：赋予随机昵称及默认校徽头像"""
+    ph = hashlib.sha256(p.encode()).hexdigest()
+    ex = datetime.now() + timedelta(days=60)
+    # 自动生成随机昵称，保证新账号的个性化
+    nk = "用户_" + ''.join(random.choices(string.ascii_letters + string.digits, k=6))
     try:
-        with get_db_connection() as conn:
-            conn.execute("INSERT INTO users (username, password_hash, nickname, expires_at) VALUES (?, ?, ?, ?)",
-                (username, password_hash, nickname, expires_at))
-            conn.commit()
+        with get_db() as c:
+            c.execute("INSERT INTO users (username, password_hash, nickname, expires_at) VALUES (?,?,?,?)", (u, ph, nk, ex))
+            c.commit()
             return True
-    except: return False
+    except:
+        return False
 
-def verify_user(username: str, password: str) -> bool:
-    password_hash = hash_password(password)
-    with get_db_connection() as conn:
-        row = conn.execute("SELECT password_hash FROM users WHERE username = ? AND expires_at >= ?", (username, datetime.now())).fetchone()
-        return row is not None and row[0] == password_hash
+def verify_user(u, p):
+    """校验用户登录凭证"""
+    ph = hashlib.sha256(p.encode()).hexdigest()
+    with get_db() as c:
+        r = c.execute("SELECT password_hash FROM users WHERE username = ? AND expires_at >= ?", (u, datetime.now())).fetchone()
+        return r and r[0] == ph
 
-def get_user_info(username: str) -> dict | None:
-    with get_db_connection() as conn:
-        row = conn.execute("SELECT nickname, avatar FROM users WHERE username = ?", (username,)).fetchone()
-        return {"nickname": row[0], "avatar": row[1]} if row else None
-
-def update_user_info(username: str, nickname: str = None, avatar: str = None) -> bool:
-    with get_db_connection() as conn:
-        if nickname: conn.execute("UPDATE users SET nickname = ? WHERE username = ?", (nickname, username))
-        if avatar: conn.execute("UPDATE users SET avatar = ? WHERE username = ?", (avatar, username))
-        conn.commit()
-        return True
-
-def add_video(title, filename, uploaded_by):
-    with get_db_connection() as conn:
-        try:
-            conn.execute("INSERT INTO videos (title, filename, uploaded_by) VALUES (?, ?, ?)", (title, filename, uploaded_by))
-            conn.commit()
-            return True
-        except: return False
-
-def get_all_videos():
-    with get_db_connection() as conn:
-        rows = conn.execute("SELECT * FROM videos ORDER BY uploaded_at DESC").fetchall()
-        return [dict(row) for row in rows]
-
-def delete_video_by_id(video_id):
-    with get_db_connection() as conn:
-        conn.execute("DELETE FROM videos WHERE id = ?", (video_id,))
-        conn.commit()
-        return True
-
-# --- 题目相关函数 (新增) ---
-def db_get_questions():
-    with get_db_connection() as conn:
-        return [dict(row) for row in conn.execute("SELECT * FROM questions").fetchall()]
-
-def db_add_question(content, a, b, c, d, ans):
-    with get_db_connection() as conn:
-        conn.execute("INSERT INTO questions (content, option_a, option_b, option_c, option_d, answer) VALUES (?,?,?,?,?,?)",
-                     (content, a, b, c, d, ans))
-        conn.commit()
-
-def db_delete_question(qid):
-    with get_db_connection() as conn:
-        conn.execute("DELETE FROM questions WHERE id = ?", (qid,))
-        conn.execute("DELETE FROM user_answers WHERE question_id = ?", (qid,))
-        conn.commit()
-
-def db_submit_answer(username, qid, selected):
-    with get_db_connection() as conn:
-        q = conn.execute("SELECT answer FROM questions WHERE id = ?", (qid,)).fetchone()
-        if not q: return None
-        is_correct = (selected == q['answer'])
-        conn.execute("INSERT OR REPLACE INTO user_answers (username, question_id, selected_option, is_correct) VALUES (?,?,?,?)",
-                     (username, qid, selected, is_correct))
-        conn.commit()
-        return is_correct
-
-def db_get_user_answers(username):
-    with get_db_connection() as conn:
-        rows = conn.execute("SELECT question_id, is_correct, selected_option FROM user_answers WHERE username = ?", (username,)).fetchall()
-        return {r['question_id']: {"is_correct": r['is_correct'], "selected": r['selected_option']} for r in rows}
+def get_user_info(u):
+    """严格根据用户名获取资料，实现账号隔离，防止串号"""
+    with get_db() as c:
+        r = c.execute("SELECT nickname, avatar FROM users WHERE username = ?", (u,)).fetchone()
+        return dict(r) if r else None
 
 def db_reset_all_answers():
-    with get_db_connection() as conn:
+    """【核心恢复】：管理员特权功能，清空所有人的答题记录，释放答题机会"""
+    with get_db() as conn:
         conn.execute("DELETE FROM user_answers")
         conn.commit()
+
+def db_add_question(c, a, b, co, d, ans):
+    """添加实验题目"""
+    with get_db() as conn:
+        conn.execute("INSERT INTO questions (content, option_a, option_b, option_c, option_d, answer) VALUES (?,?,?,?,?,?)", (c,a,b,co,d,ans))
+        conn.commit()
+
+def db_update_progress(u, vid, prog):
+    """更新视频观看百分比"""
+    with get_db() as c:
+        c.execute("INSERT OR REPLACE INTO video_progress (username, video_id, progress) VALUES (?,?,?)", (u, vid, prog))
+        c.commit()
+
+def db_get_progress(u):
+    """获取指定用户的视频进度"""
+    with get_db() as c:
+        return c.execute("SELECT v.title, p.progress FROM video_progress p JOIN videos v ON p.video_id = v.id WHERE p.username = ?", (u,)).fetchall()
+
+def db_get_questions():
+    """获取所有题目"""
+    with get_db() as c:
+        return [dict(r) for r in c.execute("SELECT * FROM questions").fetchall()]
+
+def db_submit_answer(u, qid, s):
+    """记录用户作答结果"""
+    with get_db() as conn:
+        q = conn.execute("SELECT answer FROM questions WHERE id = ?", (qid,)).fetchone()
+        is_c = (s == q[0])
+        conn.execute("INSERT OR REPLACE INTO user_answers (username, question_id, selected_option, is_correct) VALUES (?,?,?,?)", (u, qid, s, is_c))
+        conn.commit()
+        return is_c
+
+def db_get_user_answers(u):
+    """获取指定用户已回答的题目集合"""
+    with get_db() as conn:
+        rows = conn.execute("SELECT * FROM user_answers WHERE username = ?", (u,)).fetchall()
+        return {r['question_id']: dict(r) for r in rows}
+
+def add_video(t, f, u):
+    """添加视频记录"""
+    with get_db() as c:
+        c.execute("INSERT INTO videos (title, filename, uploaded_by) VALUES (?,?,?)", (t,f,u))
+        c.commit()
+
+def get_all_videos():
+    """视频目录展示"""
+    with get_db() as c:
+        return [dict(r) for r in c.execute("SELECT * FROM videos ORDER BY uploaded_at DESC").fetchall()]
+
+def delete_video_by_id(vid):
+    """删除视频"""
+    with get_db() as c:
+        c.execute("DELETE FROM videos WHERE id = ?", (vid,))
+        c.commit()
+
+def db_delete_question(qid):
+    """删除题目"""
+    with get_db() as conn:
+        conn.execute("DELETE FROM questions WHERE id = ?", (qid,))
+        conn.commit()
+
+def update_user_info(u, n=None, a=None):
+    """更新个人资料（昵称、头像）"""
+    with get_db() as c:
+        if n: c.execute("UPDATE users SET nickname = ? WHERE username = ?", (n, u))
+        if a: c.execute("UPDATE users SET avatar = ? WHERE username = ?", (a, u))
+        c.commit()
