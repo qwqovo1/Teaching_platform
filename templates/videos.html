@@ -1,103 +1,85 @@
 {% extends "base.html" %}
-
 {% block content %}
 <style>
-    .video-card {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(10px);
-        border-radius: 30px;
-        padding: 30px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        margin-bottom: 40px;
-        border: 2px solid #fff;
-        transition: transform 0.3s ease;
-    }
+    .video-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-radius: 30px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 40px; border: 2px solid #fff; transition: transform 0.3s ease; text-align: left; }
     .video-card:hover { transform: translateY(-5px); }
-    .admin-upload-box {
-        border: 2px dashed #6a82fb;
-        padding: 25px;
-        border-radius: 25px;
-        margin-bottom: 40px;
-        background: rgba(255,255,255,0.6);
-    }
-    .form-input {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 15px;
-        border-radius: 12px;
-        border: 1px solid #ddd;
-        box-sizing: border-box;
-    }
 </style>
-
 <div class="container" style="max-width: 900px; margin: 0 auto; text-align: center; padding-top: 50px; position: relative; z-index: 10;">
     <h1 class="artistic-title" style="font-size: 3.5rem; margin-bottom: 40px;">✨ 教学视频课室 ✨</h1>
 
     {% if role == 'admin' %}
-    <div class="video-card admin-upload-box">
-        <h4 style="color: #764ba2; margin-top: 0;">发布新课程 (管理员专用)</h4>
+    <div class="video-card" style="border: 2px dashed #6a82fb; background: rgba(255,255,255,0.6);">
+        <h4 style="color: #764ba2; margin-top: 0;">发布新课程 (管理员)</h4>
         <form action="/upload-video" method="post" enctype="multipart/form-data">
-            <input type="text" name="title" class="form-input" placeholder="请输入视频课件标题" required>
-            <div style="margin-bottom: 15px;">
-                <input type="file" name="video_file" accept="video/*" style="cursor: pointer;">
-            </div>
-            <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #6a82fb, #fc5c7d); border:none; width: 220px; padding: 12px; color: white; font-weight: bold; border-radius: 15px; cursor: pointer;">
-                确认上传课件 🚀
-            </button>
+            <input type="text" name="title" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #ddd;" placeholder="视频标题" required>
+            <input type="file" name="video_file" accept="video/*" style="margin-bottom: 15px;">
+            <button type="submit" style="background: linear-gradient(135deg, #6a82fb, #fc5c7d); border:none; width: 100%; padding: 12px; color: white; font-weight: bold; border-radius: 15px; cursor: pointer;">确认上传</button>
         </form>
     </div>
     {% endif %}
 
     {% for video in videos %}
     <div class="video-card">
-        <h3 style="color: #444; margin-bottom: 20px; font-weight: bold;">🎬 {{ video.title }}</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="color: #444; margin: 0; font-weight: bold;">🎬 {{ video.title }}</h3>
+            {% if role == 'admin' %}
+            <div style="display: flex; gap: 10px;">
+                {% if not loop.first %}
+                <form action="/swap-video-order" method="post">
+                    <input type="hidden" name="v1_id" value="{{ video.id }}">
+                    <input type="hidden" name="v2_id" value="{{ videos[loop.index0 - 1].id }}">
+                    <button type="submit" style="background:none; border:none; cursor:pointer; font-size: 20px;">⬆️</button>
+                </form>
+                {% endif %}
+                {% if not loop.last %}
+                <form action="/swap-video-order" method="post">
+                    <input type="hidden" name="v1_id" value="{{ video.id }}">
+                    <input type="hidden" name="v2_id" value="{{ videos[loop.index0 + 1].id }}">
+                    <button type="submit" style="background:none; border:none; cursor:pointer; font-size: 20px;">⬇️</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
 
-        <!-- 修改点：1. preload改为auto加速预缓冲 2. src末尾增加#t=0.1诱导首帧加载 -->
-        <video id="video-{{ video.id }}"
-               controls
-               playsinline
-               webkit-playsinline
-               preload="auto"
-               width="100%"
-               style="border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background: #000;"
-               onplay="initProgress('{{ video.id }}')"
-               ontimeupdate="updateProgress('{{ video.id }}', this)">
-            <source src="/video-stream/{{ video.filename }}#t=0.1" type="video/mp4">
-            您的浏览器不支持 HTML5 视频播放。
+        <!-- 🌟 修复黑屏：muted + playsinline + JS 强制首帧跳转 -->
+        <video id="video-{{ video.id }}" class="lazy-video" controls muted playsinline webkit-playsinline width="100%" style="border-radius: 20px; background: #000;"
+               data-src="/video-stream/{{ video.filename }}" onplay="initProgress('{{ video.id }}')" ontimeupdate="updateProgress('{{ video.id }}', this)">
         </video>
 
         {% if role == 'admin' %}
-        <div style="text-align: right; margin-top: 20px;">
-            <form action="/delete-video" method="post" onsubmit="return confirm('确定要删除这个课件吗？');">
+        <div style="text-align: right; margin-top: 15px;">
+            <form action="/delete-video" method="post" onsubmit="return confirm('确定删除？');">
                 <input type="hidden" name="video_id" value="{{ video.id }}">
-                <button type="submit" style="background: #ff7675; color: white; border: none; padding: 10px 25px; border-radius: 15px; cursor: pointer; font-weight: bold;">
-                    删除此课件
-                </button>
+                <button type="submit" style="background: #ff7675; color: white; border: none; padding: 8px 20px; border-radius: 10px; cursor: pointer;">删除视频</button>
             </form>
         </div>
         {% endif %}
     </div>
     {% endfor %}
 </div>
-
 <script>
-    const lastUpdateTimes = {};
-    function initProgress(videoId) { console.log("开始观看视频 ID:", videoId); }
+    document.addEventListener("DOMContentLoaded", function() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    let v = entry.target; v.src = v.dataset.src; v.load();
+                    // 🌟 解决黑屏：加载头数据后强制移动指针，唤醒渲染
+                    v.addEventListener('loadeddata', () => { if(v.readyState >= 2) v.currentTime = 0.1; }, {once:true});
+                    observer.unobserve(v);
+                }
+            });
+        }, {threshold: 0.1});
+        document.querySelectorAll(".lazy-video").forEach(v => observer.observe(v));
+    });
 
+    const lastUpdateTimes = {};
     function updateProgress(videoId, videoElement) {
         const now = Date.now();
         if (!lastUpdateTimes[videoId] || now - lastUpdateTimes[videoId] > 5000) {
-            const duration = videoElement.duration;
-            const currentTime = videoElement.currentTime;
-            if (!duration) return;
-            const percent = Math.floor((currentTime / duration) * 100);
-            const progressText = percent + "%";
-            const formData = new FormData();
-            formData.append("video_id", videoId);
-            formData.append("progress", progressText);
-            fetch("/update-progress", { method: "POST", body: formData }).then(response => {
-                if(response.ok) { lastUpdateTimes[videoId] = now; }
-            });
+            const percent = Math.floor((videoElement.currentTime / videoElement.duration) * 100);
+            const fd = new FormData(); fd.append("video_id", videoId); fd.append("progress", percent + "%");
+            fetch("/update-progress", {method: "POST", body: fd}).then(r => { if(r.ok) lastUpdateTimes[videoId] = now; });
         }
     }
 </script>

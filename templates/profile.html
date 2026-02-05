@@ -23,19 +23,27 @@
         <a href="/change-password" style="color: #666; font-size: 13px; text-decoration: none;">🔐 修改登录密码</a>
     </div>
 
-    <!-- 成绩存档展示 (不提供下载) -->
+    <!-- 成绩存档展示 -->
     <div style="margin-top: 30px; text-align: left; background: rgba(255,255,255,0.85); padding: 20px; border-radius: 20px;">
         <h4 style="color: #764ba2; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">📊 实验成绩存档</h4>
-        <div style="max-height: 150px; overflow-y: auto;">
+        <div style="max-height: 200px; overflow-y: auto;">
             {% for r in records %}
-            <p style="margin: 10px 0; color: #2ed573; font-size: 14px; font-weight: bold;">✓ 已完成存档：{{ r }}</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
+                <span style="color: #2ed573; font-size: 13px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%;">✓ {{ r }}</span>
+                <div style="flex-shrink: 0;">
+                    <a href="/view-record/{{ r }}" target="_blank" style="font-size: 12px; color: #3498db; text-decoration: none; margin-right: 8px;">[查看]</a>
+                    {% if role == 'admin' %}
+                    <a href="/download-record/{{ r }}" style="font-size: 12px; color: #2ecc71; text-decoration: none;">[下载]</a>
+                    {% endif %}
+                </div>
+            </div>
             {% else %}
-            <p style="color: #999; font-size: 13px;">暂无答题记录</p>
+            <p style="color: #999; font-size: 13px; text-align: center;">暂无答题记录</p>
             {% endfor %}
         </div>
     </div>
 
-    <!-- 🌟 原有功能：视频进度详情 (已回归) -->
+    <!-- 视频进度详情 -->
     <div style="margin-top: 20px;">
         <button onclick="toggleProgress()" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border:none;">📅 查看课件观看进度</button>
         <div id="prog-box" style="display:none; margin-top:15px; background:rgba(255,255,255,0.9); padding:15px; border-radius:15px; text-align:left;">
@@ -67,18 +75,31 @@ function preview(i) {
     }
 }
 
-// 视频进度抓取逻辑
 async function toggleProgress() {
     const box = document.getElementById('prog-box');
     const content = document.getElementById('prog-content');
     box.style.display = box.style.display === 'none' ? 'block' : 'none';
     if(box.style.display === 'block') {
         try {
+            // 🌟 核心修复逻辑：后端现在返回正确的 JSON 格式，这里将能成功解析
             const res = await fetch('/get-video-progress');
+            if (!res.ok) throw new Error("网络响应不正常");
             const data = await res.json();
-            if(!data || data.length === 0) content.innerHTML = "暂无观看记录";
-            else content.innerHTML = data.map(i => `<div style="padding:8px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><span>🎬 ${i.title}</span> <b style="color:#764ba2;">${i.progress}</b></div>`).join('');
-        } catch(e) { content.innerHTML = "同步失败"; }
+
+            if(!data || data.length === 0) {
+                content.innerHTML = '<p style="color:#999; text-align:center;">暂无观看记录</p>';
+            } else {
+                content.innerHTML = data.map(i => `
+                    <div style="padding:10px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:#333;">🎬 ${i.title}</span>
+                        <b style="color:#764ba2; background:#f0e6ff; padding:2px 8px; border-radius:10px; font-size:12px;">${i.progress}</b>
+                    </div>
+                `).join('');
+            }
+        } catch(e) {
+            console.error("同步进度失败:", e);
+            content.innerHTML = '<p style="color:#ff4757; text-align:center;">同步失败，请刷新页面重试</p>';
+        }
     }
 }
 </script>

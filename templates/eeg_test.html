@@ -2,37 +2,25 @@
 {% block content %}
 <style>
     .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-    .opt-btn {
-        padding: 18px; border: 2px solid #eef2f7; border-radius: 12px;
-        background: #fff; cursor: pointer; transition: 0.2s; text-align: left;
-    }
-    .opt-btn:hover:not(.locked) { border-color: #764ba2; background: #fdfbff; transform: translateY(-2px); }
-    .opt-btn.active { background: #764ba2; color: #fff; border-color: #764ba2; box-shadow: 0 5px 15px rgba(118,75,162,0.3); }
-    .opt-btn.locked { cursor: not-allowed; opacity: 0.8; }
+    .opt-btn { padding: 18px; border: 2px solid #eef2f7; border-radius: 12px; background: #fff; cursor: pointer; transition: 0.2s; text-align: left; }
+    .opt-btn.active { background: #764ba2; color: #fff; border-color: #764ba2; }
+    .admin-box { background: #f8f9fa; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px dashed #764ba2; }
 </style>
-
-<div class="test-container" style="max-width: 850px; margin: 40px auto; position: relative; z-index: 10;">
+<div class="test-container" style="max-width: 850px; margin: 40px auto; position: relative; z-index: 10; text-align: center;">
     <h1 class="artistic-title" style="font-size: 3rem;">实验考核自测</h1>
+    {% if already_finished %}<h2 style="color: #2ed573;">✓ 实验已交卷，成绩已存档</h2>{% endif %}
 
-    {% if already_finished %}
-    <div class="card-container" style="padding: 40px; text-align: center; border: 2px solid #2ed573;">
-        <h2 style="color: #2ed573;">✓ 实验已交卷</h2>
-        <p>您的作答已锁定，成绩单已存档。</p>
-    </div>
-    {% endif %}
-
-    <div style="{% if already_finished %} pointer-events: none; {% endif %}">
+    <div style="{% if already_finished %} pointer-events: none; opacity: 0.8; {% endif %}">
         {% if role == 'admin' %}
-        <div class="card-container" style="border: 2px dashed #6c5ce7; margin-bottom: 30px; text-align: left;">
-            <h4 style="color: #6c5ce7;">🛡️ 管理员：添加新题</h4>
+        <div class="card-container" style="border: 2px dashed #6c5ce7; margin-bottom: 30px; text-align: left; padding: 25px;">
+            <h4 style="color: #6c5ce7; margin-top: 0;">🛡️ 管理员：添加新题</h4>
             <form action="/add-question" method="post">
-                <input type="text" name="content" class="form-input" placeholder="题干" required>
+                <input type="text" name="content" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="输入题干" required>
                 <div class="opt-grid">
-                    <input type="text" name="option_a" class="form-input" placeholder="A" required>
-                    <input type="text" name="option_b" class="form-input" placeholder="B" required>
-                    <input type="text" name="option_c" class="form-input" placeholder="C" required>
-                    <input type="text" name="option_d" class="form-input" placeholder="D" required>
+                    <input type="text" name="option_a" placeholder="选项 A" required> <input type="text" name="option_b" placeholder="选项 B" required>
+                    <input type="text" name="option_c" placeholder="选项 C" required> <input type="text" name="option_d" placeholder="选项 D" required>
                 </div>
+                正确选项(A/B/C/D): <input type="text" name="answer" style="width:50px;" required>
                 <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">发布</button>
             </form>
         </div>
@@ -43,23 +31,38 @@
             <p><strong>{{ loop.index }}. {{ q.content }}</strong></p>
             <div class="opt-grid">
                 {% for opt in ['A','B','C','D'] %}
-                <button onclick="pick('{{q.id}}','{{opt}}')" id="btn_{{q.id}}_{{opt}}"
-                        class="opt-btn {{ 'active' if answered[q.id] and answered[q.id].selected_option == opt else '' }} {{ 'locked' if already_finished else '' }}">
+                <button onclick="pick('{{q.id}}','{{opt}}')" id="btn_{{q.id}}_{{opt}}" class="opt-btn {{ 'active' if answered[q.id] and answered[q.id].selected_option == opt else '' }}">
                     {{ opt }}. {{ q['option_' + opt.lower()] }}
                 </button>
                 {% endfor %}
             </div>
+
+            {% if role == 'admin' %}
+            <div class="admin-box">
+                <form action="/edit-question" method="post">
+                    <input type="hidden" name="qid" value="{{ q.id }}">
+                    内容: <input type="text" name="content" value="{{ q.content }}" style="width:85%"><br><br>
+                    选项: A:<input type="text" name="option_a" value="{{ q.option_a }}" size="8"> B:<input type="text" name="option_b" value="{{ q.option_b }}" size="8">
+                    C:<input type="text" name="option_c" value="{{ q.option_c }}" size="8"> D:<input type="text" name="option_d" value="{{ q.option_d }}" size="8"><br><br>
+                    正确答案: <input type="text" name="answer" value="{{ q.answer }}" size="2">
+                    <button type="submit" style="background:#764ba2; color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer;">保存修改</button>
+                </form>
+                <form action="/delete-question" method="post" style="margin-top: 10px;" onsubmit="return confirm('确定删除？');">
+                    <input type="hidden" name="qid" value="{{ q.id }}">
+                    <button type="submit" style="background:#ff7675; color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer;">删除此题</button>
+                </form>
+            </div>
+            {% endif %}
         </div>
         {% endfor %}
 
         {% if not already_finished %}
-        <form action="/finish-test" method="post" onsubmit="return confirm('确认正式交卷？');">
+        <form action="/finish-test" method="post" onsubmit="return confirm('确认交卷？');">
             <button type="submit" class="btn-primary" style="width: 100%; height: 60px; background: #2ed573;">确认交卷导出 📝</button>
         </form>
         {% endif %}
     </div>
 </div>
-
 <script>
 async function pick(qid, opt) {
     document.querySelectorAll(`[id^="btn_${qid}_"]`).forEach(b => b.classList.remove('active'));

@@ -43,7 +43,9 @@ def create_user(u, p):
             c.execute("INSERT INTO users (username, password_hash, nickname, expires_at) VALUES (?,?,?,?)", (u, ph, nk, ex))
             c.commit()
             return True
-    except:
+    except Exception as e:
+        # 🌟 最小改动：打印错误原因，方便你查看为什么注册失败
+        print(f"注册报错: {e}")
         return False
 
 def verify_user(u, p):
@@ -80,7 +82,9 @@ def db_update_progress(u, vid, prog):
 def db_get_progress(u):
     """获取指定用户的视频进度"""
     with get_db() as c:
-        return c.execute("SELECT v.title, p.progress FROM video_progress p JOIN videos v ON p.video_id = v.id WHERE p.username = ?", (u,)).fetchall()
+        # 🌟 核心修复：将 Row 对象转换为标准的 dict 字典，否则前端 fetch 会报“同步失败”
+        rows = c.execute("SELECT v.title, p.progress FROM video_progress p JOIN videos v ON p.video_id = v.id WHERE p.username = ?", (u,)).fetchall()
+        return [dict(r) for r in rows]
 
 def db_get_questions():
     """获取所有题目"""
