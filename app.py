@@ -2,28 +2,35 @@
 import uvicorn
 import socket
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from modules.routes import router
 from modules.database import init_db
 
-app = FastAPI()
 
-
-# 使用 startup 事件确保数据库和文件夹在启动时准备就绪
-@app.on_event("startup")
-async def startup_event():
+# 🌟 推荐的新版 Lifespan 处理器，替代过时的 @app.on_event
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # --- [启动时运行] ---
     # 1. 确保文件夹存在
     for folder in ["Data", "static/uploads", "static/videos"]:
         if not os.path.exists(folder):
             os.makedirs(folder)
             print(f"📁 已创建文件夹: {folder}")
 
-    # 2. 初始化数据库
+    # 2. 初始化数据库 (包含自动修复逻辑)
     print("📡 正在检查/初始化数据库...")
     init_db()
     print("✅ 数据库已就绪")
 
+    yield  # 此时应用正在运行...
+
+    # --- [关闭时运行] ---
+    print("🔌 正在关闭服务...")
+
+
+app = FastAPI(lifespan=lifespan)
 
 # 挂载静态文件
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -52,6 +59,9 @@ if __name__ == "__main__":
     print("█" * 60)
     print(f"👉 【本机极速访问】:  http://127.0.0.1:{port}")
     print(f"👉 【本机极速访问】:  http://localhost:{port}")
+    print("-" * 60)
+    print(f"🛠️  【账号管理后台】:  http://127.0.0.1:{port}/admin/users")
+    print(f"🛠️  【局域网管理入口】:  http://{local_ip}:{port}/admin/users")
     print("-" * 60)
     print(f"📱 【同 Wi-Fi 设备访问】: http://{local_ip}:{port}")
     print(f"📡 【内网穿透访问】: (请使用你的花生壳/frp提供的公网网址)")

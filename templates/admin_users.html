@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width: 1000px; margin: 40px auto; padding-top: 50px;">
+    <h1 class="artistic-title" style="text-align: center; margin-bottom: 30px;">👥 用户账号管理系统</h1>
+
+    <div class="card-container" style="background: rgba(255,255,255,0.9); border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 2px solid #6a82fb; color: #764ba2;">
+                    <th style="padding: 15px;">头像</th>
+                    <th>用户名/账号</th>
+                    <th>昵称</th>
+                    <th>角色</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr id="row-{{ u.username }}" style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px;">
+                        <img src="{{ u.avatar }}" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #6a82fb;">
+                    </td>
+                    <td style="font-weight: bold; color: #444;">{{ u.username }}</td>
+                    <td>{{ u.nickname }}</td>
+                    <td>
+                        <span style="padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; background: {% if u.role == 'admin' %}#ffeaa7; color: #d63031;{% else %}#dfe6e9; color: #2d3436;{% endif %}">
+                            {{ u.role }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if u.role != 'admin' %}
+                        <button onclick="deleteUser('{{ u.username }}')" style="background: #ff7675; color: white; border: none; padding: 6px 15px; border-radius: 10px; cursor: pointer; transition: 0.3s;">注销账号</button>
+                        {% else %}
+                        <span style="color: #ccc; font-size: 0.8rem;">锁定</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="/profile" class="btn-primary" style="text-decoration: none; display: inline-block;">返回个人中心</a>
+    </div>
+</div>
+
+<script>
+async function deleteUser(username) {
+    if(!confirm('🚨 确定要注销并永久删除该账号 [' + username + '] 吗？此操作不可撤销！')) return;
+
+    const fd = new FormData();
+    fd.append('target_user', username);
+
+    try {
+        const resp = await fetch('/admin/delete-user', {method: 'POST', body: fd});
+        const result = await resp.json();
+
+        if (result.status === 'ok') {
+            const row = document.getElementById('row-' + username);
+            row.style.transition = '0.5s';
+            row.style.opacity = '0';
+            setTimeout(() => row.remove(), 500);
+        } else {
+            alert('操作失败：' + result.msg);
+        }
+    } catch (e) {
+        alert('服务器连接异常');
+    }
+}
+</script>
+{% endblock %}

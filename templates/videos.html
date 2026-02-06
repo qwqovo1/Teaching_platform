@@ -25,46 +25,47 @@
             {% if role == 'admin' %}
             <div style="display: flex; gap: 10px;">
                 {% if not loop.first %}
-                <form action="/swap-video-order" method="post">
-                    <input type="hidden" name="v1_id" value="{{ video.id }}">
-                    <input type="hidden" name="v2_id" value="{{ videos[loop.index0 - 1].id }}">
-                    <button type="submit" style="background:none; border:none; cursor:pointer; font-size: 20px;">⬆️</button>
-                </form>
+                <button onclick="ajaxAction('/swap-video-order', {v1_id: '{{video.id}}', v2_id: '{{videos[loop.index0 - 1].id}}'})" style="background:none; border:none; cursor:pointer; font-size: 20px;">⬆️</button>
                 {% endif %}
                 {% if not loop.last %}
-                <form action="/swap-video-order" method="post">
-                    <input type="hidden" name="v1_id" value="{{ video.id }}">
-                    <input type="hidden" name="v2_id" value="{{ videos[loop.index0 + 1].id }}">
-                    <button type="submit" style="background:none; border:none; cursor:pointer; font-size: 20px;">⬇️</button>
-                </form>
+                <button onclick="ajaxAction('/swap-video-order', {v1_id: '{{video.id}}', v2_id: '{{videos[loop.index0 + 1].id}}'})" style="background:none; border:none; cursor:pointer; font-size: 20px;">⬇️</button>
                 {% endif %}
             </div>
             {% endif %}
         </div>
 
-        <!-- 🌟 修复黑屏：muted + playsinline + JS 强制首帧跳转 -->
         <video id="video-{{ video.id }}" class="lazy-video" controls muted playsinline webkit-playsinline width="100%" style="border-radius: 20px; background: #000;"
                data-src="/video-stream/{{ video.filename }}" onplay="initProgress('{{ video.id }}')" ontimeupdate="updateProgress('{{ video.id }}', this)">
         </video>
 
         {% if role == 'admin' %}
         <div style="text-align: right; margin-top: 15px;">
-            <form action="/delete-video" method="post" onsubmit="return confirm('确定删除？');">
-                <input type="hidden" name="video_id" value="{{ video.id }}">
-                <button type="submit" style="background: #ff7675; color: white; border: none; padding: 8px 20px; border-radius: 10px; cursor: pointer;">删除视频</button>
-            </form>
+            <button onclick="if(confirm('确定删除？')) ajaxAction('/delete-video', {video_id: '{{video.id}}'})" style="background: #ff7675; color: white; border: none; padding: 8px 20px; border-radius: 10px; cursor: pointer;">删除视频</button>
         </div>
         {% endif %}
     </div>
     {% endfor %}
 </div>
 <script>
+    // 🌟 滚动位置恢复逻辑
+    window.addEventListener('load', () => {
+        const y = sessionStorage.getItem('v_scroll');
+        if(y) { window.scrollTo(0, parseInt(y)); sessionStorage.removeItem('v_scroll'); }
+    });
+
+    async function ajaxAction(url, data) {
+        sessionStorage.setItem('v_scroll', window.scrollY); // 存滚动条
+        const fd = new FormData();
+        for(let k in data) fd.append(k, data[k]);
+        await fetch(url, {method: 'POST', body: fd});
+        location.reload(); // 刷新但不跳顶部，因为加载后有scrollTo
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     let v = entry.target; v.src = v.dataset.src; v.load();
-                    // 🌟 解决黑屏：加载头数据后强制移动指针，唤醒渲染
                     v.addEventListener('loadeddata', () => { if(v.readyState >= 2) v.currentTime = 0.1; }, {once:true});
                     observer.unobserve(v);
                 }

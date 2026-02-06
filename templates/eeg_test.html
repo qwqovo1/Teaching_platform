@@ -14,7 +14,7 @@
         {% if role == 'admin' %}
         <div class="card-container" style="border: 2px dashed #6c5ce7; margin-bottom: 30px; text-align: left; padding: 25px;">
             <h4 style="color: #6c5ce7; margin-top: 0;">🛡️ 管理员：添加新题</h4>
-            <form action="/add-question" method="post">
+            <form onsubmit="event.preventDefault(); ajaxFormSubmit(this, '/add-question');">
                 <input type="text" name="content" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="输入题干" required>
                 <div class="opt-grid">
                     <input type="text" name="option_a" placeholder="选项 A" required> <input type="text" name="option_b" placeholder="选项 B" required>
@@ -39,7 +39,7 @@
 
             {% if role == 'admin' %}
             <div class="admin-box">
-                <form action="/edit-question" method="post">
+                <form onsubmit="event.preventDefault(); ajaxFormSubmit(this, '/edit-question');">
                     <input type="hidden" name="qid" value="{{ q.id }}">
                     内容: <input type="text" name="content" value="{{ q.content }}" style="width:85%"><br><br>
                     选项: A:<input type="text" name="option_a" value="{{ q.option_a }}" size="8"> B:<input type="text" name="option_b" value="{{ q.option_b }}" size="8">
@@ -47,10 +47,7 @@
                     正确答案: <input type="text" name="answer" value="{{ q.answer }}" size="2">
                     <button type="submit" style="background:#764ba2; color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer;">保存修改</button>
                 </form>
-                <form action="/delete-question" method="post" style="margin-top: 10px;" onsubmit="return confirm('确定删除？');">
-                    <input type="hidden" name="qid" value="{{ q.id }}">
-                    <button type="submit" style="background:#ff7675; color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer;">删除此题</button>
-                </form>
+                <button onclick="if(confirm('确定删除？')) ajaxAction('/delete-question', {qid: '{{q.id}}'})" style="background:#ff7675; color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer; margin-top:10px;">删除此题</button>
             </div>
             {% endif %}
         </div>
@@ -64,6 +61,25 @@
     </div>
 </div>
 <script>
+window.addEventListener('load', () => {
+    const y = sessionStorage.getItem('q_scroll');
+    if(y) { window.scrollTo(0, parseInt(y)); sessionStorage.removeItem('q_scroll'); }
+});
+
+async function ajaxFormSubmit(form, url) {
+    sessionStorage.setItem('q_scroll', window.scrollY);
+    await fetch(url, {method: 'POST', body: new FormData(form)});
+    location.reload();
+}
+
+async function ajaxAction(url, data) {
+    sessionStorage.setItem('q_scroll', window.scrollY);
+    const fd = new FormData();
+    for(let k in data) fd.append(k, data[k]);
+    await fetch(url, {method: 'POST', body: fd});
+    location.reload();
+}
+
 async function pick(qid, opt) {
     document.querySelectorAll(`[id^="btn_${qid}_"]`).forEach(b => b.classList.remove('active'));
     document.getElementById(`btn_${qid}_${opt}`).classList.add('active');
