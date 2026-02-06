@@ -53,3 +53,56 @@ profile.html: 个人中心。 查看课件进度、下载历史成绩单。
 成绩单命名必须严格遵循 格式。账号-成绩单-序号.txt
 管理员重置逻辑不能删除 Data 文件夹下的 TXT 文件。
 新增功能不得破坏原有的数据库字段和 Session 鉴权机制。”
+(py39_fix) C:\Windows\system32>conda list
+# packages in environment at E:\Anaconda\envs\py39_fix:
+#
+# Name                     Version          Build            Channel
+annotated-doc              0.0.4            pypi_0           pypi
+annotated-types            0.7.0            pypi_0           pypi
+anyio                      4.12.1           pypi_0           pypi
+bzip2                      1.0.8            h2bbff1b_6
+ca-certificates            2025.12.2        haa95532_0
+cffi                       2.0.0            pypi_0           pypi
+click                      8.1.8            pypi_0           pypi
+colorama                   0.4.6            pypi_0           pypi
+cryptography               46.0.3           pypi_0           pypi
+ecdsa                      0.19.1           pypi_0           pypi
+exceptiongroup             1.3.1            pypi_0           pypi
+expat                      2.7.3            h885b0b7_4
+fastapi                    0.128.0          pypi_0           pypi
+greenlet                   3.2.4            pypi_0           pypi
+h11                        0.16.0           pypi_0           pypi
+idna                       3.11             pypi_0           pypi
+jinja2                     3.1.6            pypi_0           pypi
+libexpat                   2.7.3            h885b0b7_4
+libffi                     3.4.4            hd77b12b_1
+libzlib                    1.3.1            h02ab6af_0
+markupsafe                 3.0.3            pypi_0           pypi
+openssl                    3.0.18           h543e019_0
+passlib                    1.7.4            pypi_0           pypi
+pip                        25.3             pyhc872135_0
+pyasn1                     0.6.2            pypi_0           pypi
+pycparser                  2.23             pypi_0           pypi
+pydantic                   2.12.5           pypi_0           pypi
+pydantic-core              2.41.5           pypi_0           pypi
+python                     3.9.25           h716150d_1
+python-jose                3.5.0            pypi_0           pypi
+python-multipart           0.0.20           pypi_0           pypi
+rsa                        4.9.1            pypi_0           pypi
+setuptools                 80.9.0           py39haa95532_0
+six                        1.17.0           pypi_0           pypi
+sqlalchemy                 2.0.45           pypi_0           pypi
+sqlite                     3.51.1           hda9a48d_0
+starlette                  0.49.3           pypi_0           pypi
+tk                         8.6.15           hf199647_0
+typing-extensions          4.15.0           pypi_0           pypi
+typing-inspection          0.4.2            pypi_0           pypi
+tzdata                     2025c            he532380_0
+ucrt                       10.0.22621.0     haa95532_0
+uvicorn                    0.39.0           pypi_0           pypi
+vc                         14.3             h2df5915_10
+vc14_runtime               14.44.35208      h4927774_10
+vs2015_runtime             14.44.35208      ha6b5a95_10
+wheel                      0.45.1           py39haa95532_0
+xz                         5.6.4            h4754444_1
+zlib                       1.3.1            h02ab6af_0
