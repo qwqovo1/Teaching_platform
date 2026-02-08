@@ -3,75 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>深圳大学神经语言学实验室平台</title>
+    <title>深大神经语言学实验室 - 在线平台</title>
     <link rel="stylesheet" href="/static/css/global.css">
-    <link rel="stylesheet" href="/static/css/meteors.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --szu-blue: #002a5c;
+            --szu-gold: #b39355;
+            --text-dark: #333;
+            --bg-light: #f8f9fa;
+        }
+        body { margin: 0; padding: 0; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background-color: var(--bg-light); color: var(--text-dark); }
+
+        /* 顶部 Header */
+        .top-header { background: white; border-bottom: 3px solid var(--szu-blue); padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; }
+        .header-left { display: flex; align-items: center; }
+        .header-left img { height: 50px; margin-right: 15px; }
+        .header-title h1 { font-size: 20px; margin: 0; color: var(--szu-blue); }
+        .header-title p { font-size: 12px; margin: 0; color: #666; text-transform: uppercase; }
+
+        /* 右上角登录状态展示 */
+        .user-status { font-size: 14px; display: flex; align-items: center; gap: 15px; }
+        .user-info-brief { color: #555; }
+        .user-info-brief b { color: var(--szu-blue); }
+        .logout-btn { background: none; border: 1px solid #ddd; padding: 4px 12px; border-radius: 4px; cursor: pointer; color: #888; font-size: 12px; transition: 0.3s; }
+        .logout-btn:hover { background: #ff4d4f; color: white; border-color: #ff4d4f; }
+
+        /* 导航栏 */
+        .main-nav { background: var(--szu-blue); padding: 0 5%; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; }
+        .nav-links { list-style: none; display: flex; margin: 0; padding: 0; }
+        .nav-links li a { display: block; padding: 14px 25px; color: white; text-decoration: none; font-size: 15px; }
+        .nav-links li a:hover { background: rgba(255,255,255,0.1); color: var(--szu-gold); }
+
+        .breadcrumb { background: #fff; padding: 10px 5%; border-bottom: 1px solid #eee; font-size: 13px; color: #888; }
+        .breadcrumb a { color: #888; text-decoration: none; }
+
+        .footer { background: #222; color: #888; padding: 30px 5%; margin-top: 50px; text-align: center; font-size: 13px; border-top: 5px solid var(--szu-gold); }
+    </style>
 </head>
 <body>
-    <!-- 严格落实：在答题页面和视频播放页面禁止出现流星动画，防止干扰 -->
-    {% if request.url.path not in ["/eeg-test", "/videos"] %}
-    <div class="meteor-container">
-        <!-- 6颗粒子感流星，配合写实CSS特效 -->
-        <div class="meteor"></div>
-        <div class="meteor" style="animation-delay: 2s;"></div>
-        <div class="meteor" style="animation-delay: 4.5s;"></div>
-        <div class="meteor" style="animation-delay: 7s;"></div>
-        <div class="meteor" style="animation-delay: 9.5s;"></div>
-        <div class="meteor" style="animation-delay: 12s;"></div>
+
+<div class="top-header">
+    <div class="header-left">
+        <img src="/static/szu_logo.png">
+        <div class="header-title">
+            <h1>深圳大学</h1>
+            <p>神经语言学实验室在线实验系统</p>
+        </div>
     </div>
-    {% endif %}
-
-    <nav class="global-nav-bar">
-        <div class="nav-content" style="display: flex; gap: 35px; align-items: center; justify-content: center; height: 100%;">
-            <a href="/home" class="nav-item">首页</a>
-
-            <!-- 指向多级实验目录入口 -->
-            <a href="/video-catalog" class="nav-item">视频课室</a>
-
-            <!-- 指向多级测试目录入口 -->
-            <a href="/test-catalog" class="nav-item">测试题</a>
-
-            <a href="/profile" class="nav-item">个人中心</a>
-        </div>
-    </nav>
-
-    <main class="main-content">
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 0 20px 0; font-size: 0.8rem;">
-        © 2024 深圳大学神经语言学实验室 | 数字化科研教学平台
-
-        <!-- --- 🌟 末尾新增：加强版访问地址看板 --- -->
-        <div style="margin-top: 30px; display: flex; justify-content: center; padding: 0 15px;">
-            <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); border-radius: 15px; padding: 20px; text-align: left; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                <p style="margin: 0 0 12px 0; color: #fff; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center;">
-                    <span style="margin-right: 10px;">🚀</span> 系统访问门户 (加强版)
-                </p>
-                <div style="font-family: 'Consolas', monospace; font-size: 0.8rem; color: rgba(255,255,255,0.9); line-height: 2;">
-                    <div>
-                        <span style="color: #ffd700;">●</span> <b>本地加强访问:</b>
-                        <a href="http://127.0.0.1:8000" style="color: #00ffcc; text-decoration: underline; margin-left: 5px;">http://127.0.0.1:8000</a>
-                    </div>
-                    <div style="margin-top: 5px;">
-                        <span style="color: #2ed573;">●</span> <b>同网络设备访问:</b>
-                        <code id="current-lan-ip" style="background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 4px; color: #fff; margin-left: 5px;">识别中...</code>
-                    </div>
-                </div>
-                <p style="margin-top: 12px; font-size: 0.7rem; color: rgba(255,255,255,0.5);">温馨提示：手机访问请确保与电脑处于同一 Wi-Fi 环境</p>
+    <div class="header-right">
+        {% if role %}
+            <div class="user-status">
+                <span class="user-info-brief">
+                    <i class="fa fa-user-circle"></i> 欢迎，<b>{{ nickname }}</b>
+                    <small style="margin-left:5px; background:#f0f0f0; padding:2px 5px; border-radius:3px;">{{ role }}</small>
+                </span>
+                <form action="/logout" method="post" style="display:inline;">
+                    <button type="submit" class="logout-btn">退出</button>
+                </form>
             </div>
-        </div>
-    </footer>
+        {% else %}
+            <a href="/login-page" style="text-decoration: none; color: var(--szu-blue); font-weight: bold; font-size: 14px;">
+                <i class="fa fa-sign-in-alt"></i> 登录 / 注册
+            </a>
+        {% endif %}
+    </div>
+</div>
 
-    <script>
-        // 自动提取并显示当前的局域网/域名地址
-        window.addEventListener('load', function() {
-            const currentOrigin = window.location.origin;
-            const lanLabel = document.getElementById('current-lan-ip');
-            if (lanLabel) {
-                lanLabel.innerText = currentOrigin;
-            }
-        });
-    </script>
+<nav class="main-nav">
+    <ul class="nav-links">
+        <li><a href="/index"><i class="fa fa-home"></i> 首页</a></li>
+        <li><a href="/video-catalog"><i class="fa fa-video"></i> 视频课室</a></li>
+        <li><a href="/test-catalog"><i class="fa fa-brain"></i> 测试题</a></li>
+        <li><a href="/profile"><i class="fa fa-id-card"></i> 个人中心</a></li>
+        {% if role == 'admin' %}
+            <li><a href="/admin/users" style="color: #ffda79;"><i class="fa fa-cog"></i> 账号管理</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+{% block content %}{% endblock %}
+
+<footer class="footer">
+    <p>版权所有 © 深圳大学神经语言学实验室 - Neurolinguistics Lab, SZU</p>
+    <p>地址：深圳市南山区粤海街道深圳大学汇文楼 | 联系我们：lab@szu.edu.cn</p>
+</footer>
 </body>
 </html>

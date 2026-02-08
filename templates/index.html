@@ -1,26 +1,157 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="card-container" style="max-width: 650px; margin-top: 40px;">
-    <!-- 深圳大学校徽：确保图片在 static/szu_logo.png -->
-    <img src="/static/szu_logo.png" alt="SZU Logo" style="width: 140px; margin-bottom: 20px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));">
+<style>
+    /* 巨幕 Banner 区 */
+    .hero-banner {
+        height: 450px;
+        /* 建议：你可以放一张脑电实验或者实验室的照片作为背景图 */
+        background: linear-gradient(rgba(0, 42, 92, 0.7), rgba(0, 42, 92, 0.7)),
+                    url('https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&q=80&w=1600') center/cover;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+        padding: 0 20px;
+    }
 
-    <div style="font-size: 1.5rem; color: #444; font-weight: bold;">深圳大学</div>
-    <div class="artistic-title">神经语言学实验室</div>
+    .hero-banner h2 {
+        font-size: 42px;
+        margin-bottom: 20px;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
 
-    <p style="color: #666; line-height: 1.8; font-size: 1.1rem; padding: 0 20px;">
-        欢迎来到实验室在线学习系统。<br>
-        这里提供最前沿的课件资源与脑电实验自测题目。
-    </p>
+    .hero-banner p {
+        font-size: 18px;
+        max-width: 800px;
+        line-height: 1.8;
+        opacity: 0.9;
+    }
 
+    /* 快捷导航块 */
+    .feature-grid {
+        max-width: 1100px;
+        margin: -50px auto 40px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+        padding: 0 20px;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 4px; /* 减小圆角，显得更专业 */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: 0.3s;
+        border-top: 5px solid transparent;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        border-top: 5px solid var(--szu-gold);
+    }
+
+    .feature-card i {
+        font-size: 40px;
+        color: var(--szu-blue);
+        margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+        margin: 10px 0;
+        color: var(--szu-blue);
+    }
+
+    .feature-card p {
+        color: #777;
+        font-size: 14px;
+    }
+
+    /* 学术简介区 */
+    .intro-section {
+        max-width: 1100px;
+        margin: 60px auto;
+        display: flex;
+        align-items: center;
+        gap: 50px;
+        padding: 0 20px;
+    }
+
+    .intro-text {
+        flex: 1;
+    }
+
+    .intro-text h2 {
+        color: var(--szu-blue);
+        border-left: 5px solid var(--szu-gold);
+        padding-left: 15px;
+        margin-bottom: 25px;
+    }
+
+    .intro-img {
+        flex: 1;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .intro-img img {
+        width: 100%;
+        display: block;
+    }
+</style>
+
+<div class="hero-banner">
+    <h2>神经语言学实验室在线实验系统</h2>
+    <p>探索语言背后的神经机制，致力于语言学、心理学与脑科学的前沿交叉研究</p>
+    {% if not role %}
     <div style="margin-top: 30px;">
-        <a href="/login-page" class="btn-primary" style="text-decoration: none; display: inline-block;">
-            立即开启探索 🚀
-        </a>
+        <a href="/login-page" style="background: var(--szu-gold); color: white; padding: 12px 40px; text-decoration: none; border-radius: 4px; font-weight: bold;">立即加入</a>
     </div>
+    {% endif %}
+</div>
 
-    <div style="margin-top: 25px; font-size: 0.9rem;">
-        还没有账号？ <a href="/register-page" style="color: #ff0080; font-weight: bold; text-decoration: none;">[ 快速注册 ]</a>
+<div class="feature-grid">
+    <a href="/video-catalog" class="feature-card">
+        <i class="fa fa-book-open"></i>
+        <h3>在线课室</h3>
+        <p>访问前沿的脑科学与语言学实验技术教学资源</p>
+    </a>
+    <a href="/test-catalog" class="feature-card">
+        <i class="fa fa-microscope"></i>
+        <h3>虚拟仿真实验</h3>
+        <p>参与脑电（EEG）及神经语言学线上自测与实验模拟</p>
+    </a>
+    <a href="/profile" class="feature-card">
+        <i class="fa fa-file-invoice"></i>
+        <h3>学术存档</h3>
+        <p>查看您的实验成绩单、学习进度及科研成长记录</p>
+    </a>
+</div>
+
+<div class="intro-section">
+    <div class="intro-text">
+        <h2>关于实验室</h2>
+        <p style="line-height: 2; color: #555;">
+            深圳大学神经语言学实验室成立于学术底蕴深厚的深圳大学，是致力于语言认知神经机制研究的跨学科科研平台。
+            本平台利用脑电（EEG）、眼动（Eye-tracking）等前沿技术，通过在线学习与虚拟仿真实验，
+            为研究者和学生提供便捷的科研辅助。
+        </p>
+        <p style="line-height: 2; color: #555;">
+            在这里，你可以自主学习脑电实验全过程，从电极安放、数据采集到信号处理，全方位提升科研实践能力。
+        </p>
+    </div>
+    <div class="intro-img">
+        <!-- 占位图，展示科研场景 -->
+        <img src="https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=800" alt="Lab Space">
     </div>
 </div>
+
 {% endblock %}

@@ -1,106 +1,144 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card-container" style="max-width: 600px; position: relative; z-index: 10;">
-    <h2 class="artistic-title" style="font-size: 2.5rem;">个人中心</h2>
+<style>
+    .breadcrumb { background: #fff; padding: 10px 5%; border-bottom: 1px solid #eee; font-size: 13px; color: #666; }
+    .profile-container { max-width: 1200px; margin: 30px auto; display: grid; grid-template-columns: 300px 1fr; gap: 30px; padding: 0 20px; }
+    .profile-box { background: white; border: 1px solid #e0e0e0; border-radius: 4px; padding: 25px; }
+    .profile-box h3 { margin-top: 0; font-size: 18px; color: var(--szu-blue); border-left: 4px solid var(--szu-gold); padding-left: 12px; margin-bottom: 25px; }
+    .record-search { margin-bottom: 20px; display: flex; gap: 10px; }
+    .record-search input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+    .record-search button { background: var(--szu-blue); color: white; border: none; padding: 0 20px; border-radius: 4px; cursor: pointer; }
+    .record-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .record-table th { background: #f8f9fa; text-align: left; padding: 12px; font-size: 14px; border-bottom: 2px solid #eee; }
+    .record-table td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+    .btn-action { text-decoration: none; font-weight: bold; margin-right: 15px; color: var(--szu-blue); font-size: 13px; }
+    .admin-tools { background: #fffbe6; border: 1px solid #ffe58f; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+</style>
 
-    <!-- 用户资料 -->
-    <form action="/update-profile" method="post" enctype="multipart/form-data">
-        <label style="cursor: pointer; display: inline-block;">
-            <img src="{{ avatar }}" id="avatar-preview"
-                 style="width: 110px; height: 110px; border-radius: 50%; border: 4px solid #764ba2; object-fit: cover; background: #fff;">
-            <input type="file" name="avatar_file" style="display:none;" onchange="preview(this)">
-            <p style="font-size: 12px; color: #764ba2; font-weight: bold; margin-top: 10px;">点击更换头像</p>
-        </label>
-        <div style="text-align: left; margin-top: 15px;">
-            <label style="font-weight:bold;">昵称：</label>
-            <input type="text" name="nickname" class="form-input" value="{{ nickname }}" required>
-        </div>
-        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">更新个人资料</button>
-    </form>
+<div class="breadcrumb">位置：<a href="/index">首页</a> > 个人中心</div>
 
-    <div style="margin-top: 15px; text-align: right;">
-        <a href="/change-password" style="color: #666; font-size: 13px; text-decoration: none;">🔐 修改登录密码</a>
-    </div>
-
-    <!-- 成绩存档展示 -->
-    <div style="margin-top: 30px; text-align: left; background: rgba(255,255,255,0.85); padding: 20px; border-radius: 20px;">
-        <h4 style="color: #764ba2; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0;">📊 实验成绩存档</h4>
-        <div style="max-height: 200px; overflow-y: auto;">
-            {% for r in records %}
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
-                <span style="color: #2ed573; font-size: 13px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%;">✓ {{ r }}</span>
-                <div style="flex-shrink: 0;">
-                    <a href="/view-record/{{ r }}" target="_blank" style="font-size: 12px; color: #3498db; text-decoration: none; margin-right: 8px;">[查看]</a>
-                    {% if role == 'admin' %}
-                    <a href="/download-record/{{ r }}" style="font-size: 12px; color: #2ecc71; text-decoration: none;">[下载]</a>
-                    {% endif %}
-                </div>
+<div class="profile-container">
+    <!-- 左侧：资料设置 -->
+    <aside class="profile-box" style="height: fit-content;">
+        <h3>账户设置</h3>
+        <form action="/update-profile" method="post" enctype="multipart/form-data" style="text-align: center;">
+            <label style="cursor: pointer; display: inline-block; position: relative;">
+                <img src="{{ avatar }}" id="avatar-preview" style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid #eee; object-fit: cover;">
+                <input type="file" name="avatar_file" style="display:none;" onchange="preview(this)">
+            </label>
+            <p style="font-size: 12px; color: #999; margin: 10px 0 20px;">点击更换照片</p>
+            <div style="text-align: left; margin-bottom: 20px;">
+                <label style="font-size: 13px; font-weight: bold; color: #666;">用户昵称</label>
+                <input type="text" name="nickname" value="{{ nickname }}" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
             </div>
-            {% else %}
-            <p style="color: #999; font-size: 13px; text-align: center;">暂无答题记录</p>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- 视频进度详情 -->
-    <div style="margin-top: 20px;">
-        <button onclick="toggleProgress()" class="btn-primary" style="width: 100%; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border:none;">📅 查看课件观看进度</button>
-        <div id="prog-box" style="display:none; margin-top:15px; background:rgba(255,255,255,0.9); padding:15px; border-radius:15px; text-align:left;">
-            <h5 style="margin: 0 0 10px 0;">已同步进度列表：</h5>
-            <div id="prog-content" style="font-size: 14px;">正在同步中...</div>
-        </div>
-    </div>
-
-    {% if role == 'admin' %}
-    <div style="margin-top: 30px; border-top: 2px dashed #ff4757; padding-top: 20px;">
-        <p style="color: #ff4757; font-weight: bold; font-size: 13px; text-align: left;">🛡️ 管理员面板：</p>
-        <form action="/reset-all" method="post" onsubmit="return confirm('确定要刷新所有成员答题机会吗？（记录文件会保留）');">
-            <button type="submit" class="btn-primary" style="background: #ff4757; width: 100%;">刷新交卷机会</button>
+            <button type="submit" style="width: 100%; background: var(--szu-blue); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">保存更新</button>
         </form>
-    </div>
-    {% endif %}
+        <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;">
+        <div style="text-align: center;">
+            <a href="/change-password" style="color: #666; font-size: 13px; text-decoration: none;"><i class="fa fa-lock"></i> 修改密码</a>
+        </div>
+        <form action="/logout" method="post" style="margin-top: 20px; text-align: center;">
+            <button type="submit" style="background: none; border: none; color: #ff4d4f; cursor: pointer; font-size: 13px;">[ 退出登录 ]</button>
+        </form>
+    </aside>
 
-    <form action="/logout" method="post" style="margin-top: 30px;">
-        <button type="submit" style="background:none; border:none; color:#bbb; cursor:pointer; font-size: 13px; text-decoration: underline;">[ 退出登录 ]</button>
-    </form>
+    <!-- 右侧：记录管理 -->
+    <main>
+        <div class="profile-box">
+            <h3>实验成绩存档</h3>
+
+            <!-- 成绩单搜索表单 -->
+            <form method="GET" action="/profile" class="record-search">
+                <input type="text" name="record_q" value="{{ record_q }}" placeholder="按存档文件名关键字搜索报告单...">
+                <button type="submit">搜索</button>
+                {% if record_q %}<a href="/profile" style="font-size:12px; align-self:center; color:#999; margin-left:10px;">清空</a>{% endif %}
+            </form>
+
+            {% if role == 'admin' %}
+            <div class="admin-tools">
+                <span style="font-size:13px; color:#856404; font-weight:bold;">管理员批量工具：</span>
+                <button type="button" onclick="batchRec('download')" style="background:#fa8c16; color:white; border:none; padding:5px 15px; border-radius:3px; cursor:pointer; font-size:12px;">批量下载选中</button>
+                <button type="button" onclick="batchRec('delete')" style="background:#ff4d4f; color:white; border:none; padding:5px 15px; border-radius:3px; cursor:pointer; font-size:12px; margin-left:10px;">批量删除选中</button>
+            </div>
+            {% endif %}
+
+            <form id="recForm" method="POST">
+                <table class="record-table">
+                    <thead>
+                        <tr>
+                            {% if role == 'admin' %}<th style="width:30px;"><input type="checkbox" id="selAllRec"></th>{% endif %}
+                            <th>存档报告单名称</th>
+                            <th>存档状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in records %}
+                        <tr>
+                            {% if role == 'admin' %}<td><input type="checkbox" name="filenames" value="{{ r }}"></td>{% endif %}
+                            <td style="color:#444;">{{ r }}</td>
+                            <td><span style="color:#52c41a;"><i class="fa fa-check-circle"></i> 已存档</span></td>
+                            <td>
+                                <a href="/view-record/{{ r }}" target="_blank" class="btn-action">预览报告</a>
+                                <a href="/download-record/{{ r }}" class="btn-action" style="color:#52c41a;">下载报告单</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" style="text-align:center; padding:50px; color:#999;">暂无匹配的成绩记录</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <div class="profile-box" style="margin-top:25px;">
+            <h3>课件观看进度自测</h3>
+            <button onclick="toggleProg()" style="background:#f0f2f5; border:1px solid #ccc; padding:8px 15px; cursor:pointer; border-radius:4px; font-size:13px;">查看当前已同步进度</button>
+            <div id="prog-list" style="display:none; margin-top:15px; border:1px solid #eee; background:#fafafa; padding:15px;"></div>
+        </div>
+
+        {% if role == 'admin' %}
+        <div class="profile-box" style="margin-top:25px; border-top:3px solid #ff4d4f;">
+            <h3 style="color:#ff4d4f;">系统特权管理</h3>
+            <div style="display:flex; gap:15px;">
+                <form action="/reset-all" method="post" onsubmit="return confirm('警告：确定重置所有成员答题机会？');">
+                    <button type="submit" style="background:#ff4d4f; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">重置全站答题锁</button>
+                </form>
+                <a href="/admin/users" style="background:var(--szu-blue); color:white; text-decoration:none; padding:10px 20px; border-radius:4px; font-size:14px;">管理所有账号</a>
+            </div>
+        </div>
+        {% endif %}
+    </main>
 </div>
 
 <script>
-function preview(i) {
-    if(i.files && i.files[0]) {
-        var r = new FileReader();
-        r.onload = e => document.getElementById('avatar-preview').src = e.target.result;
-        r.readAsDataURL(i.files[0]);
-    }
-}
-
-async function toggleProgress() {
-    const box = document.getElementById('prog-box');
-    const content = document.getElementById('prog-content');
-    box.style.display = box.style.display === 'none' ? 'block' : 'none';
-    if(box.style.display === 'block') {
-        try {
-            // 🌟 核心修复逻辑：后端现在返回正确的 JSON 格式，这里将能成功解析
-            const res = await fetch('/get-video-progress');
-            if (!res.ok) throw new Error("网络响应不正常");
-            const data = await res.json();
-
-            if(!data || data.length === 0) {
-                content.innerHTML = '<p style="color:#999; text-align:center;">暂无观看记录</p>';
-            } else {
-                content.innerHTML = data.map(i => `
-                    <div style="padding:10px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="color:#333;">🎬 ${i.title}</span>
-                        <b style="color:#764ba2; background:#f0e6ff; padding:2px 8px; border-radius:10px; font-size:12px;">${i.progress}</b>
-                    </div>
-                `).join('');
-            }
-        } catch(e) {
-            console.error("同步进度失败:", e);
-            content.innerHTML = '<p style="color:#ff4757; text-align:center;">同步失败，请刷新页面重试</p>';
+    function preview(i){
+        if(i.files && i.files[0]){
+            var r=new FileReader();
+            r.onload=e=>document.getElementById('avatar-preview').src=e.target.result;
+            r.readAsDataURL(i.files[0]);
         }
     }
-}
+
+    document.getElementById('selAllRec') && (document.getElementById('selAllRec').onclick=function(){
+        let cbs=document.getElementsByName('filenames'); for(let cb of cbs) cb.checked=this.checked;
+    });
+
+    function batchRec(act) {
+        let f=document.getElementById('recForm'), checked=document.querySelectorAll('input[name="filenames"]:checked');
+        if(checked.length===0){ alert('请先选择报告单'); return; }
+        if(act==='delete' && !confirm('确定物理删除选中的 ' + checked.length + ' 个报告单吗？此操作不可撤销！')) return;
+        f.action = act==='delete' ? '/admin/batch-delete-records' : '/admin/batch-download-records';
+        f.submit();
+    }
+
+    async function toggleProg() {
+        let b=document.getElementById('prog-list');
+        if(b.style.display==='block'){ b.style.display='none'; return; }
+        b.style.display='block'; b.innerHTML='正在从服务器同步进度...';
+        let r=await fetch('/get-video-progress'), d=await r.json();
+        b.innerHTML = d.length ? d.map(i=>`<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #ddd;"><span>🎬 ${i.title}</span><b style="color:var(--szu-blue);">${i.progress}</b></div>`).join('') : '暂无进度记录';
+    }
 </script>
 {% endblock %}

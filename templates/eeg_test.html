@@ -1,90 +1,80 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-    .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-    .opt-btn { padding: 18px; border: 2px solid #eef2f7; border-radius: 12px; background: #fff; cursor: pointer; transition: 0.2s; text-align: left; }
-    .opt-btn.active { background: #764ba2; color: #fff; border-color: #764ba2; }
-    .admin-box { background: #f8f9fa; padding: 15px; border-radius: 15px; margin-top: 20px; border: 1px dashed #764ba2; }
+    .page-container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+    .test-header { background: white; border: 1px solid #e0e0e0; padding: 25px; border-radius: 4px; margin-bottom: 30px; text-align: center; }
+    .question-card { background: white; border: 1px solid #e0e0e0; padding: 30px; border-radius: 4px; margin-bottom: 25px; }
+    .opt-list { list-style: none; padding: 0; margin-top: 20px; }
+    .opt-item { border: 1px solid #eee; padding: 12px 20px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; border-radius: 4px; }
+    .opt-item:hover { background: #f8f9fa; border-color: var(--szu-blue); }
+    .opt-item.active { background: var(--szu-blue); color: white; border-color: var(--szu-blue); }
+    .submit-bar { position: sticky; bottom: 20px; background: white; padding: 20px; border: 1px solid var(--szu-blue); border-radius: 4px; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
 </style>
-<div class="test-container" style="max-width: 850px; margin: 40px auto; position: relative; z-index: 10; text-align: center;">
-    <h1 class="artistic-title" style="font-size: 3rem;">实验考核自测</h1>
-    {% if already_finished %}<h2 style="color: #2ed573;">✓ 实验已交卷，成绩已存档</h2>{% endif %}
 
-    <div style="{% if already_finished %} pointer-events: none; opacity: 0.8; {% endif %}">
-        {% if role == 'admin' %}
-        <div class="card-container" style="border: 2px dashed #6c5ce7; margin-bottom: 30px; text-align: left; padding: 25px;">
-            <h4 style="color: #6c5ce7; margin-top: 0;">🛡️ 管理员：添加新题</h4>
-            <form onsubmit="event.preventDefault(); ajaxFormSubmit(this, '/add-question');">
-                <input type="text" name="content" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="输入题干" required>
-                <div class="opt-grid">
-                    <input type="text" name="option_a" placeholder="选项 A" required> <input type="text" name="option_b" placeholder="选项 B" required>
-                    <input type="text" name="option_c" placeholder="选项 C" required> <input type="text" name="option_d" placeholder="选项 D" required>
-                </div>
-                正确选项(A/B/C/D): <input type="text" name="answer" style="width:50px;" required>
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">发布</button>
-            </form>
-        </div>
-        {% endif %}
+<div class="breadcrumb">位置：首页 > 测试题库</div>
 
+<div class="page-container">
+    <div class="test-header">
+        <h2 style="color:var(--szu-blue); margin:0;">实验考核自测试卷</h2>
+        <p style="color:#888; margin-top:10px;">请根据实验培训内容认真作答，交卷后结果将自动存档并导出成绩单。</p>
+        {% if already_finished %}<div style="color:#52c41a; font-weight:bold; margin-top:10px;"><i class="fa fa-check-circle"></i> 您已完成交卷，成绩已存档。</div>{% endif %}
+    </div>
+
+    {% if role == 'admin' %}
+    <div class="question-card" style="border: 1px dashed var(--szu-blue); background: #f0f7ff;">
+        <h4 style="margin-top:0;">发布试题</h4>
+        <form onsubmit="event.preventDefault(); ajaxFormSubmit(this, '/add-question');">
+            <textarea name="content" style="width:100%; height:60px; margin-bottom:10px;" placeholder="题目干内容" required></textarea>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <input type="text" name="option_a" placeholder="选项 A" required>
+                <input type="text" name="option_b" placeholder="选项 B" required>
+                <input type="text" name="option_c" placeholder="选项 C" required>
+                <input type="text" name="option_d" placeholder="选项 D" required>
+            </div>
+            <div style="margin-top:10px;">
+                正确答案：<input type="text" name="answer" maxlength="1" style="width:40px; text-align:center;" required>
+                <button type="submit" style="background:var(--szu-blue); color:white; border:none; padding:5px 20px; margin-left:10px; cursor:pointer;">发布题目</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <div style="{% if already_finished %} pointer-events: none; opacity: 0.7; {% endif %}">
         {% for q in questions %}
-        <div class="card-container" style="text-align: left; margin-bottom: 25px; padding: 30px;">
-            <p><strong>{{ loop.index }}. {{ q.content }}</strong></p>
-            <div class="opt-grid">
+        <div class="question-card">
+            <p style="font-size:16px; font-weight:bold; color:#444;">{{ loop.index }}. {{ q.content }}</p>
+            <ul class="opt-list">
                 {% for opt in ['A','B','C','D'] %}
-                <button onclick="pick('{{q.id}}','{{opt}}')" id="btn_{{q.id}}_{{opt}}" class="opt-btn {{ 'active' if answered[q.id] and answered[q.id].selected_option == opt else '' }}">
+                <li onclick="pick('{{q.id}}','{{opt}}')" id="btn_{{q.id}}_{{opt}}" class="opt-item {{ 'active' if answered[q.id] and answered[q.id].selected_option == opt else '' }}">
                     {{ opt }}. {{ q['option_' + opt.lower()] }}
-                </button>
+                </li>
                 {% endfor %}
-            </div>
-
-            {% if role == 'admin' %}
-            <div class="admin-box">
-                <form onsubmit="event.preventDefault(); ajaxFormSubmit(this, '/edit-question');">
-                    <input type="hidden" name="qid" value="{{ q.id }}">
-                    内容: <input type="text" name="content" value="{{ q.content }}" style="width:85%"><br><br>
-                    选项: A:<input type="text" name="option_a" value="{{ q.option_a }}" size="8"> B:<input type="text" name="option_b" value="{{ q.option_b }}" size="8">
-                    C:<input type="text" name="option_c" value="{{ q.option_c }}" size="8"> D:<input type="text" name="option_d" value="{{ q.option_d }}" size="8"><br><br>
-                    正确答案: <input type="text" name="answer" value="{{ q.answer }}" size="2">
-                    <button type="submit" style="background:#764ba2; color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer;">保存修改</button>
-                </form>
-                <button onclick="if(confirm('确定删除？')) ajaxAction('/delete-question', {qid: '{{q.id}}'})" style="background:#ff7675; color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer; margin-top:10px;">删除此题</button>
-            </div>
-            {% endif %}
+            </ul>
         </div>
         {% endfor %}
 
         {% if not already_finished %}
-        <form action="/finish-test" method="post" onsubmit="return confirm('确认交卷？');">
-            <button type="submit" class="btn-primary" style="width: 100%; height: 60px; background: #2ed573;">确认交卷导出 📝</button>
-        </form>
+        <div class="submit-bar">
+            <form action="/finish-test" method="post" onsubmit="return confirm('确认交卷并导出成绩单吗？');">
+                <button type="submit" style="width:100%; padding:15px; background:var(--szu-blue); color:white; border:none; font-size:18px; font-weight:bold; cursor:pointer; border-radius:4px;">
+                    <i class="fa fa-file-export"></i> 确认交卷并导出实验报告
+                </button>
+            </form>
+        </div>
         {% endif %}
     </div>
 </div>
+
 <script>
-window.addEventListener('load', () => {
-    const y = sessionStorage.getItem('q_scroll');
-    if(y) { window.scrollTo(0, parseInt(y)); sessionStorage.removeItem('q_scroll'); }
-});
-
-async function ajaxFormSubmit(form, url) {
-    sessionStorage.setItem('q_scroll', window.scrollY);
-    await fetch(url, {method: 'POST', body: new FormData(form)});
-    location.reload();
-}
-
-async function ajaxAction(url, data) {
-    sessionStorage.setItem('q_scroll', window.scrollY);
-    const fd = new FormData();
-    for(let k in data) fd.append(k, data[k]);
-    await fetch(url, {method: 'POST', body: fd});
-    location.reload();
-}
-
-async function pick(qid, opt) {
-    document.querySelectorAll(`[id^="btn_${qid}_"]`).forEach(b => b.classList.remove('active'));
-    document.getElementById(`btn_${qid}_${opt}`).classList.add('active');
-    const fd = new FormData(); fd.append('qid', qid); fd.append('opt', opt);
-    await fetch('/submit-answer', {method: 'POST', body: fd});
-}
+    async function pick(qid, opt) {
+        document.querySelectorAll(`[id^="btn_${qid}_"]`).forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn_${qid}_${opt}`).classList.add('active');
+        const fd = new FormData(); fd.append('qid', qid); fd.append('opt', opt);
+        await fetch('/submit-answer', {method: 'POST', body: fd});
+    }
+    async function ajaxFormSubmit(form, url) {
+        await fetch(url, {method: 'POST', body: new FormData(form)});
+        location.reload();
+    }
 </script>
 {% endblock %}

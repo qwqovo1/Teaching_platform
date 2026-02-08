@@ -1,18 +1,16 @@
-# Python
-__pycache__/
+# 排除前端依赖
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# 排除后端缓存和环境
+backend/**/__pycache__/
+backend/.venv/
 *.pyc
 
-# Database
-*.db
-*.sqlite
-
-# Uploads and videos
-static/uploads/
-static/videos/
-
-# IDE
+# 排除编辑器配置
 .idea/
 .vscode/
 
-# Env
-.env
+# 排除大体积数据文件（如果有）
+Data/

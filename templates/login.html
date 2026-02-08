@@ -1,31 +1,136 @@
 {% extends "base.html" %}
-{% block page_bg %}bg-login{% endblock %}
 
 {% block content %}
-<div class="card-container">
-    <h1>用户登录</h1>
-    {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
-    <form action="/login" method="post">
-        <div class="form-group">
-            <label>用户名</label>
-            <input type="text" name="username" class="form-input" required>
+<style>
+    .login-wrapper {
+        min-height: 70vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+    }
+
+    .login-card {
+        background: white;
+        width: 100%;
+        max-width: 450px;
+        padding: 40px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border-radius: 4px;
+    }
+
+    .login-card h2 {
+        color: var(--szu-blue);
+        margin-top: 0;
+        margin-bottom: 30px;
+        font-size: 24px;
+        border-bottom: 2px solid var(--szu-gold);
+        display: inline-block;
+        padding-bottom: 5px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #555;
+        font-size: 14px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 16px;
+        transition: 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--szu-blue);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0,42,92,0.1);
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 14px;
+        background: var(--szu-blue);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+
+    .btn-login:hover {
+        background: #003d85;
+    }
+
+    .error-msg {
+        background: #fff2f0;
+        border: 1px solid #ffccc7;
+        color: #ff4d4f;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <h2>用户登录</h2>
+
+        {% if error %}
+            <div class="error-msg"><i class="fa fa-exclamation-circle"></i> {{ error }}</div>
+        {% endif %}
+
+        <form action="/login" method="post">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" name="username" class="form-control" placeholder="请输入账号" required>
+            </div>
+
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" name="password" class="form-control" placeholder="请输入密码" required>
+            </div>
+
+            <div class="form-group">
+                <label>登录身份</label>
+                <select name="role" class="form-control" onchange="toggleAdmin(this.value)">
+                    <option value="student">普通实验成员</option>
+                    <option value="admin">实验室管理员</option>
+                </select>
+            </div>
+
+            <div id="admin_box" class="form-group" style="display:none;">
+                <label>管理员认证序列号</label>
+                <input type="password" name="admin_serial" class="form-control" placeholder="请输入认证密钥">
+            </div>
+
+            <button type="submit" class="btn-login">确认登录</button>
+        </form>
+
+        <div style="margin-top: 25px; text-align: center; font-size: 14px; color: #888;">
+            还没有账号？ <a href="/register-page" style="color: var(--szu-blue); text-decoration: none; font-weight: bold;">[ 快速注册 ]</a>
         </div>
-        <div class="form-group">
-            <label>密码</label>
-            <input type="password" name="password" class="form-input" required>
-        </div>
-        <div class="form-group">
-            <label>身份</label>
-            <select name="role" class="form-input" onchange="document.getElementById('admin_box').style.display=this.value=='admin'?'block':'none'">
-                <option value="user">普通用户</option>
-                <option value="admin">管理员</option>
-            </select>
-        </div>
-        <div class="form-group" id="admin_box" style="display:none;">
-            <label>序列号认证</label>
-            <input type="password" name="admin_serial" class="form-input" placeholder="输入认证序列号">
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">进入系统</button>
-    </form>
+    </div>
 </div>
+
+<script>
+function toggleAdmin(val) {
+    document.getElementById('admin_box').style.display = (val === 'admin') ? 'block' : 'none';
+}
+</script>
 {% endblock %}

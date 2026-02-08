@@ -1,17 +1,105 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div style="max-width: 900px; margin: 0 auto; text-align: center;">
-    <h1 style="color: #4a4a4a; margin-bottom: 50px;">实验测试题</h1>
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px;">
-        <a href="/eeg-test" class="golden-btn" style="background: var(--primary-btn); text-decoration: none;">
-            <span style="color: white;">🧠 脑电实验测试</span>
+<style>
+    /* 统一的网格布局与卡片样式 */
+    .catalog-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    .catalog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+    .catalog-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        padding: 40px 30px;
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s ease;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    /* 悬浮效果：上浮并加深边框颜色 */
+    .catalog-card:hover {
+        border-color: var(--szu-blue);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    }
+    .catalog-card i {
+        font-size: 48px;
+        color: var(--szu-blue);
+        margin-bottom: 20px;
+    }
+    .catalog-card h3 {
+        margin: 10px 0;
+        color: var(--szu-blue);
+        font-size: 20px;
+    }
+    .catalog-card p {
+        font-size: 14px;
+        color: #777;
+        line-height: 1.6;
+        margin-top: 10px;
+    }
+    /* 锁定状态卡片 */
+    .lock-card {
+        background: #fcfcfc;
+        opacity: 0.7;
+        cursor: not-allowed;
+        border-style: dashed;
+    }
+    .lock-card i {
+        color: #bbb;
+    }
+    .lock-card h3 {
+        color: #999;
+    }
+</style>
+
+<!-- 导航面包屑 -->
+<div class="breadcrumb">
+    位置：<a href="/index">首页</a> > 测试题库分类
+</div>
+
+<div class="catalog-container">
+    <!-- 带有深大金装饰线的标题 -->
+    <h2 style="color: var(--szu-blue); border-left: 5px solid var(--szu-gold); padding-left: 15px; margin-bottom: 10px;">实验考核自测</h2>
+    <p style="color: #666; font-size: 14px; margin-left: 20px;">请选择对应的实验模块进入在线测评系统</p>
+
+    <div class="catalog-grid">
+        <!-- 🧠 脑电实验测试：修正链接为 /eeg-test -->
+        <a href="/eeg-test" class="catalog-card">
+            <i class="fa fa-brain"></i>
+            <h3>脑电实验测试 (EEG)</h3>
+            <p>包含脑电基础知识、电极安放流程及伪迹识别考核</p>
         </a>
-        <div class="golden-btn lock-btn"><span>🔒 语言模型测试</span></div>
+
+        <!-- 语言模型测试：当前锁定 -->
+        <div class="catalog-card lock-card">
+            <i class="fa fa-lock"></i>
+            <h3>语言模型测试 (LLM)</h3>
+            <p>模块开发中，敬请期待</p>
+        </div>
+
+        <!-- 神经统计分析测试：当前锁定 -->
+        <div class="catalog-card lock-card">
+            <i class="fa fa-lock"></i>
+            <h3>神经统计分析测试</h3>
+            <p>模块开发中，敬请期待</p>
+        </div>
     </div>
 </div>
-<style>
-.golden-btn { width: 240px; height: 148px; display: flex; align-items: center; justify-content: center; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: 0.4s; }
-.lock-btn { background: rgba(255,255,255,0.5); border: 1px dashed #ccc; color: #999; cursor: not-allowed; }
-.golden-btn:hover:not(.lock-btn) { transform: translateY(-10px); }
-</style>
+
+<div style="text-align: center; margin-top: 60px; color: #bbb; font-size: 13px;">
+    <i class="fa fa-info-circle"></i> 温馨提示：考核通过后，系统将自动生成实验报告存档。
+</div>
+
 {% endblock %}

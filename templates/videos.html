@@ -1,79 +1,80 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-    .video-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-radius: 30px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 40px; border: 2px solid #fff; transition: transform 0.3s ease; text-align: left; }
-    .video-card:hover { transform: translateY(-5px); }
+    .page-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+    .section-title { color: var(--szu-blue); border-left: 5px solid var(--szu-gold); padding-left: 15px; margin-bottom: 30px; }
+    .video-item { background: white; border: 1px solid #e0e0e0; border-radius: 4px; padding: 25px; margin-bottom: 30px; display: grid; grid-template-columns: 1fr 300px; gap: 30px; }
+    .video-info h3 { margin: 0 0 15px 0; color: #444; }
+    .video-player { background: #000; border-radius: 4px; width: 100%; aspect-ratio: 16/9; }
+    .admin-upload { background: #fffbe6; border: 1px solid #ffe58f; padding: 20px; border-radius: 4px; margin-bottom: 30px; }
 </style>
-<div class="container" style="max-width: 900px; margin: 0 auto; text-align: center; padding-top: 50px; position: relative; z-index: 10;">
-    <h1 class="artistic-title" style="font-size: 3.5rem; margin-bottom: 40px;">✨ 教学视频课室 ✨</h1>
+
+<div class="breadcrumb">位置：首页 > 视频课室</div>
+
+<div class="page-container">
+    <h2 class="section-title">教学视频资源</h2>
 
     {% if role == 'admin' %}
-    <div class="video-card" style="border: 2px dashed #6a82fb; background: rgba(255,255,255,0.6);">
-        <h4 style="color: #764ba2; margin-top: 0;">发布新课程 (管理员)</h4>
-        <form action="/upload-video" method="post" enctype="multipart/form-data">
-            <input type="text" name="title" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #ddd;" placeholder="视频标题" required>
-            <input type="file" name="video_file" accept="video/*" style="margin-bottom: 15px;">
-            <button type="submit" style="background: linear-gradient(135deg, #6a82fb, #fc5c7d); border:none; width: 100%; padding: 12px; color: white; font-weight: bold; border-radius: 15px; cursor: pointer;">确认上传</button>
+    <div class="admin-upload">
+        <h4 style="margin-top:0; color:#856404;"><i class="fa fa-upload"></i> 上传新课件</h4>
+        <form action="/upload-video" method="post" enctype="multipart/form-data" style="display:flex; gap:15px; align-items:center;">
+            <input type="text" name="title" placeholder="输入视频标题" style="flex:1; padding:8px;" required>
+            <input type="file" name="video_file" accept="video/*" required>
+            <button type="submit" style="background:var(--szu-blue); color:white; border:none; padding:8px 20px; cursor:pointer;">开始上传</button>
         </form>
     </div>
     {% endif %}
 
     {% for video in videos %}
-    <div class="video-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 style="color: #444; margin: 0; font-weight: bold;">🎬 {{ video.title }}</h3>
+    <div class="video-item">
+        <div class="video-player-container">
+            <video id="video-{{ video.id }}" class="lazy-video video-player" controls muted playsinline
+                   data-src="/video-stream/{{ video.filename }}" onplay="initProgress('{{ video.id }}')" ontimeupdate="updateProgress('{{ video.id }}', this)">
+            </video>
+        </div>
+        <div class="video-info">
+            <h3>{{ video.title }}</h3>
+            <p style="font-size: 13px; color: #888; line-height: 1.6;">
+                <i class="fa fa-info-circle"></i> 本课件为实验室内部教学资源，请观看并保持进度同步。
+            </p>
             {% if role == 'admin' %}
-            <div style="display: flex; gap: 10px;">
-                {% if not loop.first %}
-                <button onclick="ajaxAction('/swap-video-order', {v1_id: '{{video.id}}', v2_id: '{{videos[loop.index0 - 1].id}}'})" style="background:none; border:none; cursor:pointer; font-size: 20px;">⬆️</button>
-                {% endif %}
-                {% if not loop.last %}
-                <button onclick="ajaxAction('/swap-video-order', {v1_id: '{{video.id}}', v2_id: '{{videos[loop.index0 + 1].id}}'})" style="background:none; border:none; cursor:pointer; font-size: 20px;">⬇️</button>
-                {% endif %}
+            <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                <button onclick="if(confirm('确定删除？')) ajaxAction('/delete-video', {video_id: '{{video.id}}'})" style="background:#ff4d4f; color:white; border:none; padding:5px 12px; border-radius:4px; cursor:pointer;">删除</button>
+                <div style="margin-top:10px;">
+                    <!-- 🌟 修复点：添加条件判断防止索引越界 -->
+                    {% if not loop.first %}
+                    <button title="上移" onclick="ajaxAction('/swap-video-order', {v1_id: '{{video.id}}', v2_id: '{{videos[loop.index0 - 1].id}}'})" style="cursor:pointer; background:none; border:1px solid #ddd; padding:2px 8px;">↑</button>
+                    {% endif %}
+
+                    {% if not loop.last %}
+                    <button title="下移" onclick="ajaxAction('/swap-video-order', {v1_id: '{{video.id}}', v2_id: '{{videos[loop.index0 + 1].id}}'})" style="cursor:pointer; background:none; border:1px solid #ddd; padding:2px 8px;">↓</button>
+                    {% endif %}
+                </div>
             </div>
             {% endif %}
         </div>
-
-        <video id="video-{{ video.id }}" class="lazy-video" controls muted playsinline webkit-playsinline width="100%" style="border-radius: 20px; background: #000;"
-               data-src="/video-stream/{{ video.filename }}" onplay="initProgress('{{ video.id }}')" ontimeupdate="updateProgress('{{ video.id }}', this)">
-        </video>
-
-        {% if role == 'admin' %}
-        <div style="text-align: right; margin-top: 15px;">
-            <button onclick="if(confirm('确定删除？')) ajaxAction('/delete-video', {video_id: '{{video.id}}'})" style="background: #ff7675; color: white; border: none; padding: 8px 20px; border-radius: 10px; cursor: pointer;">删除视频</button>
-        </div>
-        {% endif %}
     </div>
     {% endfor %}
 </div>
-<script>
-    // 🌟 滚动位置恢复逻辑
-    window.addEventListener('load', () => {
-        const y = sessionStorage.getItem('v_scroll');
-        if(y) { window.scrollTo(0, parseInt(y)); sessionStorage.removeItem('v_scroll'); }
-    });
 
+<script>
     async function ajaxAction(url, data) {
-        sessionStorage.setItem('v_scroll', window.scrollY); // 存滚动条
         const fd = new FormData();
         for(let k in data) fd.append(k, data[k]);
         await fetch(url, {method: 'POST', body: fd});
-        location.reload(); // 刷新但不跳顶部，因为加载后有scrollTo
+        location.reload();
     }
-
     document.addEventListener("DOMContentLoaded", function() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     let v = entry.target; v.src = v.dataset.src; v.load();
-                    v.addEventListener('loadeddata', () => { if(v.readyState >= 2) v.currentTime = 0.1; }, {once:true});
                     observer.unobserve(v);
                 }
             });
-        }, {threshold: 0.1});
+        });
         document.querySelectorAll(".lazy-video").forEach(v => observer.observe(v));
     });
-
     const lastUpdateTimes = {};
     function updateProgress(videoId, videoElement) {
         const now = Date.now();
